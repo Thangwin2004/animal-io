@@ -63,7 +63,7 @@ export class Enemy {
   addScore(points) {
     this.score += points;
     const newScale = 1 + Math.log10(this.score / 20 + 1) * 2.5; // Giảm một chút để không bị khổng lồ quá nhanh
-    this.bodyContainer.scale.set(Math.sign(this.bodyContainer.scale.x) * newScale, newScale);
+    this.sizeScale = newScale;
     this.radius = 40 * newScale;
     this.nameText.y = -80 * newScale;
 
@@ -96,17 +96,45 @@ export class Enemy {
     this.container.x = this.x;
     this.container.y = this.y;
     
-    // Bouncing effect when moving
-    this.bodyContainer.y = Math.abs(Math.sin(Date.now() * 0.015)) * -10 * (dist > 0.5 ? 1 : 0);
+    if (this.sizeScale === undefined) this.sizeScale = Math.abs(this.bodyContainer.scale.y) || 1;
+    if (this.facingRight === undefined) this.facingRight = this.bodyContainer.scale.x < 0;
 
-    // Ảnh gốc thú nhún quay sang trái.
-    // Đi sang trái (dx < -1): cần quay trái -> scale.x dương
-    if (dx < -1 && this.bodyContainer.scale.x < 0) {
-      this.bodyContainer.scale.x = Math.abs(this.bodyContainer.scale.x);
-    } 
-    // Đi sang phải (dx > 1): cần quay phải -> scale.x âm
-    else if (dx > 1 && this.bodyContainer.scale.x > 0) {
-      this.bodyContainer.scale.x = -Math.abs(this.bodyContainer.scale.x);
+    const isMoving = dist > 0.5;
+    const bouncePhase = Date.now() * 0.015;
+    
+    // Bouncing effect
+    const bounceY = isMoving ? Math.abs(Math.sin(bouncePhase)) * -15 : 0;
+    this.bodyContainer.y = bounceY * this.sizeScale;
+
+    // Squash & Stretch
+    let stretchX = 1;
+    let stretchY = 1;
+    
+    if (isMoving) {
+        const heightFactor = Math.abs(Math.sin(bouncePhase)); 
+        stretchX = 1.15 - (0.25 * heightFactor); // Chạm đất béo ra, trên không gầy lại
+        stretchY = 0.85 + (0.25 * heightFactor); // Chạm đất lùn đi, trên không cao lên
     }
+
+    // Nghiêng người khi di chuyển
+    if (isMoving) {
+        this.bodyContainer.rotation = (dx / (Math.abs(dx) || 1)) * 0.1;
+    } else {
+        this.bodyContainer.rotation = 0;
+    }
+
+    // Quay mặt
+    if (dx < -1) {
+      this.facingRight = false;
+    } else if (dx > 1) {
+      this.facingRight = true;
+    }
+
+    // Gộp tổng Scale (Kích thước gốc * Hướng quay * Hiệu ứng nhún)
+    const dirX = this.facingRight ? -1 : 1; 
+    this.bodyContainer.scale.set(
+        dirX * this.sizeScale * stretchX, 
+        this.sizeScale * stretchY
+    );
   }
 }
