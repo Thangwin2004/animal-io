@@ -34,6 +34,15 @@ export class Player {
     this.bodyContainer.addChild(this.sprite);
     
     this.container.addChild(this.bodyContainer);
+    
+    // Tính toán bounds một lần dựa trên texture gốc
+    const bounds = this.bodyContainer.getLocalBounds();
+    this.baseBounds = {
+      left: Math.abs(bounds.x),
+      right: bounds.x + bounds.width,
+      top: Math.abs(bounds.y),
+      bottom: bounds.y + bounds.height
+    };
 
     const style = new TextStyle({
       fontFamily: 'Arial', fontSize: 20, fill: '#00ff00',
@@ -77,15 +86,15 @@ export class Player {
       this.y += (dy / dist) * this.speed;
     }
 
-    // Giới hạn nhân vật không được đi ra khỏi bản đồ (bo sát theo hình ảnh)
-    // Kích thước thú nhún cơ bản là 120x120. Với anchor (0.5, 0.8)
+    // Giới hạn nhân vật không được đi ra khỏi bản đồ (bo sát theo hình ảnh động)
     const currentScale = this.sizeScale || 1;
-    const visualHalfWidth = 60 * currentScale;
-    const visualTop = 96 * currentScale;
-    const visualBottom = 24 * currentScale;
+    const visualLeft = (this.baseBounds ? this.baseBounds.left : 60) * currentScale;
+    const visualRight = (this.baseBounds ? this.baseBounds.right : 60) * currentScale;
+    const visualTop = (this.baseBounds ? this.baseBounds.top : 115) * currentScale;
+    const visualBottom = (this.baseBounds ? this.baseBounds.bottom : 12) * currentScale;
 
-    if (this.x < visualHalfWidth) this.x = visualHalfWidth;
-    if (this.x > worldWidth - visualHalfWidth) this.x = worldWidth - visualHalfWidth;
+    if (this.x < visualLeft) this.x = visualLeft;
+    if (this.x > worldWidth - visualRight) this.x = worldWidth - visualRight;
     if (this.y < visualTop) this.y = visualTop;
     if (this.y > worldHeight - visualBottom) this.y = worldHeight - visualBottom;
 
