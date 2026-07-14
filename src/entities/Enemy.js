@@ -23,16 +23,27 @@ export class Enemy {
       this.bodyContainer.addChild(this.mountSprite);
     }
 
+    this.riderContainer = new Container();
+    this.riderContainer.x = 25;
+    this.riderContainer.y = -70;
+
+    const shadow = new Graphics();
+    shadow.ellipse(0, 15, 25, 8).fill({color: 0x000000, alpha: 0.4});
+    this.riderContainer.addChild(shadow);
+
     this.sprite = new Sprite(texture);
     this.sprite.anchor.set(0.5);
     this.baseScale = texture.width > 0 ? 70 / texture.width : 0.07;
     this.sprite.scale.set(this.baseScale);
-    
-    // Mask tròn cho avatar đã được bỏ vì ảnh đã tách nền trong suốt    
-    // Cưỡi lên thú nhún (hình ảnh gốc quay sang trái, nên yên nằm bên phải trục X -> x = 25)
-    this.sprite.x = 25;
-    this.sprite.y = -80;
-    this.bodyContainer.addChild(this.sprite);
+    this.sprite.y = -10;
+    this.riderContainer.addChild(this.sprite);
+
+    const riderMask = new Graphics();
+    riderMask.roundRect(-40, -60, 80, 80, 20).fill(0xffffff);
+    this.riderContainer.addChild(riderMask);
+    this.riderContainer.mask = riderMask;
+
+    this.bodyContainer.addChild(this.riderContainer);
     
     this.container.addChild(this.bodyContainer);
 
@@ -103,9 +114,17 @@ export class Enemy {
     const isMoving = dist > 0.5;
     const bouncePhase = Date.now() * 0.015;
     
-    // Bouncing effect
-    const bounceY = isMoving ? Math.abs(Math.sin(bouncePhase)) * -15 : 0;
-    this.bodyContainer.y = bounceY * this.sizeScale;
+    if (isMoving) {
+      this.bodyContainer.y = -Math.abs(Math.sin(bouncePhase)) * 15 * this.sizeScale;
+      this.bodyContainer.scale.y = (1 - Math.abs(Math.sin(bouncePhase)) * 0.1) * this.sizeScale;
+      this.riderContainer.rotation = Math.sin(bouncePhase * 0.5) * 0.15;
+      this.riderContainer.y = -70 - Math.abs(Math.cos(bouncePhase)) * 5;
+    } else {
+      this.bodyContainer.y = 0;
+      this.bodyContainer.scale.y = this.sizeScale;
+      this.riderContainer.rotation = 0;
+      this.riderContainer.y = -70;
+    }
 
     // Squash & Stretch
     let stretchX = 1;
