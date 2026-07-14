@@ -50,7 +50,7 @@ export class AssetLoader {
     
     let loaded = 0;
     for (const name of avatarNames) {
-      const tex = await Assets.load(`/assest/image/imagebldp/${name}`);
+      const tex = await Assets.load(`/assest/image/imagenobackgrd/${name}`);
       this.avatars.push(tex);
       loaded++;
       if (onProgress) onProgress(0.2 + (loaded / avatarNames.length) * 0.8);

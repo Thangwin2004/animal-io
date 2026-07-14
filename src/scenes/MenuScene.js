@@ -107,16 +107,7 @@ export class MenuScene {
       
       this.avatarSprite.scale.set(avatarScale);
       
-      // Cập nhật mask tròn
-      if (this.avatarMask) {
-        this.avatarSprite.removeChild(this.avatarMask);
-        this.avatarMask.destroy();
-      }
-      this.avatarMask = new Graphics();
-      this.avatarMask.circle(0, 0, texW / 2).fill(0xffffff);
-      this.avatarSprite.addChild(this.avatarMask);
-      this.avatarSprite.mask = this.avatarMask;
-      
+      // Mask đã được bỏ vì ảnh đã tách nền trong suốt      
     } else {
       this.avatarSprite.scale.set(0.5);
     }

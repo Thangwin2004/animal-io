@@ -261,7 +261,7 @@ export class OverlayManager {
 
       row.innerHTML = `<div style="flex:1; font-size:20px;">${rankStr}</div>
                        <div style="flex:2; display:flex; align-items:center; gap:10px;">
-                         <img src="/assest/image/imagebldp/001_avatar_laclac.png" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:2px solid #fff;">
+                         <img src="/assest/image/imagenobackgrd/001_avatar_laclac.png" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:2px solid #fff;">
                          ${name}
                        </div>
                        <div style="flex:1; text-align:right; font-size:18px;">${score}</div>`;
@@ -279,7 +279,7 @@ export class OverlayManager {
     footer.style.cssText = `width:450px; height:50px; border-radius:8px; background:#fff3cd; border:2px solid #FFD64A; margin-top:10px; display:flex; align-items:center; padding:0 15px; box-sizing:border-box; color:#47363B; font-family:'Fredoka', 'Baloo 2', 'Be Vietnam Pro', sans-serif; font-size:16px; font-weight:bold;`;
     footer.innerHTML = `<div style="flex:1; font-size:20px;">-</div>
                         <div style="flex:2; display:flex; align-items:center; gap:10px;">
-                          <img src="/assest/image/imagebldp/007_avatar_tiguawhite.png" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:2px solid #fff;">
+                          <img src="/assest/image/imagenobackgrd/007_avatar_tiguawhite.png" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:2px solid #fff;">
                           Bạn (Khách)
                         </div>
                         <div style="flex:1; text-align:right; font-size:18px;">${pbScore}</div>`;

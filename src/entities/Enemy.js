@@ -28,14 +28,7 @@ export class Enemy {
     this.baseScale = texture.width > 0 ? 70 / texture.width : 0.07;
     this.sprite.scale.set(this.baseScale);
     
-    // Mask tròn
-    if (texture.width > 0) {
-      const mask = new Graphics();
-      mask.circle(0, 0, texture.width * 0.35).fill(0xffffff); // Cắt sát hơn vào trung tâm (0.35 thay vì 0.5)
-      this.sprite.addChild(mask);
-      this.sprite.mask = mask;
-    }
-    
+    // Mask tròn cho avatar đã được bỏ vì ảnh đã tách nền trong suốt    
     // Cưỡi lên thú nhún (hình ảnh gốc quay sang trái, nên yên nằm bên phải trục X -> x = 25)
     this.sprite.x = 25;
     this.sprite.y = -80;
