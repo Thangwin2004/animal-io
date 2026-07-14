@@ -173,8 +173,14 @@ export class GameScene {
   }
 
   spawnFood() {
-    const x = Math.random() * this.worldWidth;
-    const y = Math.random() * this.worldHeight;
+    // Chỉ spawn trong vùng an toàn mà nhân vật có thể đi tới (tránh việc đồ ăn dính mép trên không ăn được)
+    const safeLeft = 40;
+    const safeRight = this.worldWidth - 40;
+    const safeTop = 120;
+    const safeBottom = this.worldHeight - 10;
+    
+    const x = safeLeft + Math.random() * (safeRight - safeLeft);
+    const y = safeTop + Math.random() * (safeBottom - safeTop);
     const tex = this.game.assetLoader.items[Math.floor(Math.random() * this.game.assetLoader.items.length)];
     const food = new Food(x, y, tex);
     food.sprite.cullable = true; // Bật culling cho food
@@ -264,12 +270,18 @@ export class GameScene {
   }
 
   checkCollisions() {
+    // Dịch tâm hitbox của Player lên giữa thân hình trực quan (thay vì ở dưới mỏ neo/chân)
+    const pScale = this.player.sizeScale || 1;
+    const pCx = this.player.x;
+    const pCy = this.player.y - (40 * pScale);
+    const pRadius = this.player.radius * 1.5; // Tăng diện tích ăn
+
     for (const food of this.foods) {
       if (food.isDead) continue;
-      const dx = this.player.x - food.x;
-      const dy = this.player.y - food.y;
+      const dx = pCx - food.x;
+      const dy = pCy - food.y;
       const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < this.player.radius + food.radius) {
+      if (dist < pRadius + food.radius) {
         food.isDead = true;
         this.foodLayer.removeChild(food.sprite);
         food.sprite.destroy();
@@ -281,12 +293,18 @@ export class GameScene {
 
     for (const enemy of this.enemies) {
       if (enemy.isDead) continue;
+      
+      const eScale = enemy.sizeScale || 1;
+      const eCx = enemy.x;
+      const eCy = enemy.y - (40 * eScale);
+      const eRadius = enemy.radius * 1.5;
+
       for (const food of this.foods) {
         if (food.isDead) continue;
-        const dx = enemy.x - food.x;
-        const dy = enemy.y - food.y;
+        const dx = eCx - food.x;
+        const dy = eCy - food.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < enemy.radius + food.radius) {
+        if (dist < eRadius + food.radius) {
           food.isDead = true;
           this.foodLayer.removeChild(food.sprite);
           food.sprite.destroy();
@@ -297,12 +315,19 @@ export class GameScene {
 
     this.foods = this.foods.filter(f => !f.isDead);
 
+    // Check PVP Collisions (giữ hitbox PVP bình thường nhưng dời lên tâm thân)
     for (const enemy of this.enemies) {
       if (enemy.isDead) continue;
-      const dx = this.player.x - enemy.x;
-      const dy = this.player.y - enemy.y;
+      
+      const eScale = enemy.sizeScale || 1;
+      const eCx = enemy.x;
+      const eCy = enemy.y - (40 * eScale);
+      
+      const dx = pCx - eCx;
+      const dy = pCy - eCy;
       const dist = Math.sqrt(dx*dx + dy*dy);
       
+      // Hitbox chạm nhau
       if (dist < this.player.radius + enemy.radius) {
         if (this.player.radius > enemy.radius * 1.1 && dist < this.player.radius) {
           enemy.isDead = true;
@@ -378,10 +403,14 @@ export class GameScene {
       for (let j = i + 1; j < this.enemies.length; j++) {
         const e2 = this.enemies[j];
         if (e2.isDead) continue;
-        const dx = e1.x - e2.x;
-        const dy = e1.y - e2.y;
-        const dist = Math.sqrt(dx*dx + dy*dy);
         
+        const e1Scale = e1.sizeScale || 1;
+        const e2Scale = e2.sizeScale || 1;
+        
+        const dx = e1.x - e2.x;
+        const dy = (e1.y - 40 * e1Scale) - (e2.y - 40 * e2Scale);
+        const dist = Math.sqrt(dx*dx + dy*dy);
+
         if (dist < e1.radius + e2.radius) {
           if (e1.radius > e2.radius * 1.1 && dist < e1.radius) {
             e2.isDead = true;

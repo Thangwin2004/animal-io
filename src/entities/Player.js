@@ -34,15 +34,6 @@ export class Player {
     this.bodyContainer.addChild(this.sprite);
     
     this.container.addChild(this.bodyContainer);
-    
-    // Tính toán bounds một lần dựa trên texture gốc
-    const bounds = this.bodyContainer.getLocalBounds();
-    this.baseBounds = {
-      left: Math.abs(bounds.x),
-      right: bounds.x + bounds.width,
-      top: Math.abs(bounds.y),
-      bottom: bounds.y + bounds.height
-    };
 
     const style = new TextStyle({
       fontFamily: 'Arial', fontSize: 20, fill: '#00ff00',
@@ -86,12 +77,13 @@ export class Player {
       this.y += (dy / dist) * this.speed;
     }
 
-    // Giới hạn nhân vật không được đi ra khỏi bản đồ (bo sát theo hình ảnh động)
+    // Giới hạn nhân vật không được đi ra khỏi bản đồ
     const currentScale = this.sizeScale || 1;
-    const visualLeft = (this.baseBounds ? this.baseBounds.left : 60) * currentScale;
-    const visualRight = (this.baseBounds ? this.baseBounds.right : 60) * currentScale;
-    const visualTop = (this.baseBounds ? this.baseBounds.top : 115) * currentScale;
-    const visualBottom = (this.baseBounds ? this.baseBounds.bottom : 12) * currentScale;
+    // Bỏ qua viền trong suốt của texture, dùng offset chuẩn để không bị cắt đầu và chân chạm mép
+    const visualLeft = 40 * currentScale;
+    const visualRight = 40 * currentScale;
+    const visualTop = 120 * currentScale; // Đủ cao để không bị cắt mất avatar
+    const visualBottom = 0; // Bằng 0 để chân chạm hẳn sát xuống mép dưới bản đồ
 
     if (this.x < visualLeft) this.x = visualLeft;
     if (this.x > worldWidth - visualRight) this.x = worldWidth - visualRight;
