@@ -11,7 +11,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@11.13.0",
+  "packageManager": "pnpm@9.15.0",
   "type": "module",
   "dependencies": {
     "pixi.js": "^8.19.0"
