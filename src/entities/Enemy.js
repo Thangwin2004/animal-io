@@ -27,10 +27,6 @@ export class Enemy {
     this.riderContainer.x = 25;
     this.riderContainer.y = -70;
 
-    const shadow = new Graphics();
-    shadow.ellipse(0, 15, 25, 8).fill({color: 0x000000, alpha: 0.4});
-    this.riderContainer.addChild(shadow);
-
     this.sprite = new Sprite(texture);
     this.sprite.anchor.set(0.5);
     this.baseScale = texture.width > 0 ? 70 / texture.width : 0.07;
