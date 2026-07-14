@@ -77,11 +77,17 @@ export class Player {
       this.y += (dy / dist) * this.speed;
     }
 
-    // Giới hạn nhân vật không được đi ra khỏi bản đồ
-    if (this.x < this.radius) this.x = this.radius;
-    if (this.x > worldWidth - this.radius) this.x = worldWidth - this.radius;
-    if (this.y < this.radius) this.y = this.radius;
-    if (this.y > worldHeight - this.radius) this.y = worldHeight - this.radius;
+    // Giới hạn nhân vật không được đi ra khỏi bản đồ (bo sát theo hình ảnh)
+    // Kích thước thú nhún cơ bản là 120x120. Với anchor (0.5, 0.8)
+    const currentScale = this.sizeScale || 1;
+    const visualHalfWidth = 60 * currentScale;
+    const visualTop = 96 * currentScale;
+    const visualBottom = 24 * currentScale;
+
+    if (this.x < visualHalfWidth) this.x = visualHalfWidth;
+    if (this.x > worldWidth - visualHalfWidth) this.x = worldWidth - visualHalfWidth;
+    if (this.y < visualTop) this.y = visualTop;
+    if (this.y > worldHeight - visualBottom) this.y = worldHeight - visualBottom;
 
     this.container.x = this.x;
     this.container.y = this.y;
