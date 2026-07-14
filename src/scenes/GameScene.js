@@ -96,9 +96,9 @@ export class GameScene {
     this.container.hitArea = { contains: () => true }; 
     this.container.on('pointermove', (e) => {
       if (this.player && !this.player.isDead) {
-        const worldX = e.global.x - this.camera.x;
-        const worldY = e.global.y - this.camera.y;
-        this.player.setTarget(worldX, worldY);
+        // Dùng toLocal để hỗ trợ mọi mức Zoom của Camera
+        const localPos = this.camera.toLocal(e.global);
+        this.player.setTarget(localPos.x, localPos.y);
       }
     });
 
@@ -242,13 +242,23 @@ export class GameScene {
     
     const screenW = this.game.app.screen.width;
     const screenH = this.game.app.screen.height;
-    this.camera.x = screenW / 2 - this.player.x;
-    this.camera.y = screenH / 2 - this.player.y;
+    
+    // Zoom out động: Càng to thì camera càng lùi ra xa
+    const activeScale = (this.baseCameraScale || 1) / Math.pow(this.player.sizeScale || 1, 0.4);
+    this.camera.scale.set(activeScale);
+
+    // Tính toán lại vị trí Camera có nhân với activeScale
+    this.camera.x = screenW / 2 - this.player.x * activeScale;
+    this.camera.y = screenH / 2 - this.player.y * activeScale;
+
+    // Tính toán lại giới hạn Camera
+    const minCamX = screenW - this.worldWidth * activeScale;
+    const minCamY = screenH - this.worldHeight * activeScale;
 
     if (this.camera.x > 0) this.camera.x = 0;
     if (this.camera.y > 0) this.camera.y = 0;
-    if (this.camera.x < screenW - this.worldWidth) this.camera.x = screenW - this.worldWidth;
-    if (this.camera.y < screenH - this.worldHeight) this.camera.y = screenH - this.worldHeight;
+    if (this.camera.x < minCamX) this.camera.x = minCamX;
+    if (this.camera.y < minCamY) this.camera.y = minCamY;
 
     for (const enemy of this.enemies) {
       if (enemy.isDead) continue;
@@ -446,6 +456,10 @@ export class GameScene {
 
   onResize(w, h) {
     const scale = Math.min(w / 800, h / 600, 1.2);
+    
+    // Đảm bảo luôn thấy ít nhất 1000 đơn vị (ví dụ chiều ngang của mobile) -> Zoom out
+    this.baseCameraScale = Math.min(w, h) / 1000;
+    this.baseCameraScale = Math.max(0.35, Math.min(this.baseCameraScale, 1.2));
 
     if (this.settingsBtn) {
       const uiScale = Math.max(0.6, scale);
