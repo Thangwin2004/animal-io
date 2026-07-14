@@ -53,7 +53,7 @@ export class Enemy {
     this.container.addChild(this.nameText);
 
     this.score = 0;
-    this.radius = 40;
+    this.radius = 20;
     this.baseSpeed = 2.5 + Math.random() * 2;
     this.speed = this.baseSpeed;
     
@@ -64,7 +64,7 @@ export class Enemy {
     this.score += points;
     const newScale = 1 + Math.log10(this.score / 20 + 1) * 2.5; // Giảm một chút để không bị khổng lồ quá nhanh
     this.sizeScale = newScale;
-    this.radius = 40 * newScale;
+    this.radius = 20 * newScale;
     this.nameText.y = -80 * newScale;
 
     const sizeRatio = newScale;
