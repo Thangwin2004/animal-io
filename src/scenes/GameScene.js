@@ -207,10 +207,12 @@ export class GameScene {
     const t = new Text({ text, style });
     t.anchor.set(0.5);
     t.x = x;
-    t.y = y - 30;
-    t.vy = -2;
+    t.y = y - 10;
+    t.vy = -1;
     t.life = 1.0;
-    t.decay = 0.02;
+    t.decay = 0.04;
+    t.scale.set(0.2);
+    t.dScale = 0.1;
     this.vfxLayer.addChild(t);
     this.particles.push(t);
   }
@@ -224,6 +226,10 @@ export class GameScene {
       const p = this.particles[i];
       p.x += p.vx || 0;
       p.y += p.vy || 0;
+      if (p.dScale) {
+        const newScale = Math.min(1.2, p.scale.x + p.dScale);
+        p.scale.set(newScale);
+      }
       p.life -= p.decay;
       p.alpha = Math.max(0, p.life);
       
