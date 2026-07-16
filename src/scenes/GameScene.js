@@ -342,10 +342,6 @@ export class GameScene {
           food.sprite.destroy();
           enemy.addScore(1);
           this.createExplosion(food.x, food.y, 8, 0x4CAF50, 0.4);
-          
-          const eHeadX = enemy.x;
-          const eHeadY = enemy.y - 120 * (enemy.sizeScale || 1);
-          this.createFloatingText(eHeadX, eHeadY, '+1', '#00ff00');
         }
       }
     }
@@ -464,10 +460,6 @@ export class GameScene {
             const e2Cx = e2.x;
             const e2Cy = e2.y - 40 * (e2.sizeScale || 1);
             this.createExplosion(e2Cx, e2Cy, 30, 0xffaa00, 1.5);
-            
-            const e1HeadX = e1.x;
-            const e1HeadY = e1.y - 120 * (e1.sizeScale || 1);
-            this.createFloatingText(e1HeadX, e1HeadY, '+' + Math.floor(e2.score / 2), '#ffaa00');
           } else if (e2.radius > e1.radius * 1.1 && dist < e2.radius) {
             e1.isDead = true;
             e1.container.destroy();
@@ -475,10 +467,6 @@ export class GameScene {
             const e1Cx = e1.x;
             const e1Cy = e1.y - 40 * (e1.sizeScale || 1);
             this.createExplosion(e1Cx, e1Cy, 30, 0xffaa00, 1.5);
-            
-            const e2HeadX = e2.x;
-            const e2HeadY = e2.y - 120 * (e2.sizeScale || 1);
-            this.createFloatingText(e2HeadX, e2HeadY, '+' + Math.floor(e1.score / 2), '#ffaa00');
           } else if (e1.radius <= e2.radius * 1.1 && e2.radius <= e1.radius * 1.1) {
             // Bouncing if similar size
             const overlap = e1.radius + e2.radius - dist;
