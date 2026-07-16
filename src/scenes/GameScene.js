@@ -182,15 +182,14 @@ export class GameScene {
     this.foodLayer.addChild(food.sprite);
   }
 
-  createExplosion(x, y, radius, color) {
-    const count = 10 + Math.random() * 10;
+  createExplosion(x, y, count = 15, color = 0xFFD54F, sizeScale = 1) {
     for (let i = 0; i < count; i++) {
       const p = new Graphics();
-      p.circle(0, 0, 3 + Math.random() * 5).fill(color || 0xffffff);
+      p.circle(0, 0, (4 + Math.random() * 6) * sizeScale).fill(color);
       p.x = x;
       p.y = y;
       const angle = Math.random() * Math.PI * 2;
-      const speed = 2 + Math.random() * 6;
+      const speed = (2 + Math.random() * 8) * sizeScale;
       p.vx = Math.cos(angle) * speed;
       p.vy = Math.sin(angle) * speed;
       p.life = 1.0;
@@ -198,6 +197,10 @@ export class GameScene {
       this.vfxLayer.addChild(p);
       this.particles.push(p);
     }
+  }
+
+  shakeCamera(duration = 10) {
+    this.shakeTime = duration;
   }
 
   createFloatingText(x, y, text, color = '#FFD54F') {
@@ -271,6 +274,13 @@ export class GameScene {
     if (this.camera.x < minCamX) this.camera.x = minCamX;
     if (this.camera.y < minCamY) this.camera.y = minCamY;
 
+    // Rung màn hình (Camera Shake)
+    if (this.shakeTime > 0) {
+      this.camera.x += (Math.random() - 0.5) * 20;
+      this.camera.y += (Math.random() - 0.5) * 20;
+      this.shakeTime--;
+    }
+
     for (const enemy of this.enemies) {
       if (enemy.isDead) continue;
       enemy.update(this.worldWidth, this.worldHeight);
@@ -304,7 +314,7 @@ export class GameScene {
         food.sprite.destroy();
         this.player.addScore(1);
         this.game.audioManager.playSFX('pop');
-        this.createExplosion(food.x, food.y, 15, 0x4CAF50); // Thêm vfx hạt vỡ ra khi ăn
+        this.createExplosion(food.x, food.y, 10, 0x4CAF50, 0.5); // Hạt nhỏ
         this.createFloatingText(food.x, food.y, '+1', '#00ff00');
       }
     }
@@ -327,7 +337,7 @@ export class GameScene {
           this.foodLayer.removeChild(food.sprite);
           food.sprite.destroy();
           enemy.addScore(1);
-          this.createExplosion(food.x, food.y, 15, 0x4CAF50);
+          this.createExplosion(food.x, food.y, 8, 0x4CAF50, 0.4);
         }
       }
     }
@@ -353,11 +363,15 @@ export class GameScene {
           enemy.container.destroy();
           this.player.addScore(enemy.score / 2);
           this.game.audioManager.playSFX('eat');
-          this.createExplosion(enemy.x, enemy.y, enemy.radius, 0xff0000);
-          this.createFloatingText(enemy.x, enemy.y, '+' + Math.floor(enemy.score / 2), '#ffaa00');
+          this.shakeCamera(15);
+          this.createExplosion(enemy.x, enemy.y, 40, 0xff3333, 2); // Hạt lớn bùng nổ
+          this.createFloatingText(enemy.x, enemy.y, 'YUMMY!', '#ff0000');
+          setTimeout(() => this.createFloatingText(enemy.x, enemy.y, '+' + Math.floor(enemy.score / 2), '#ffaa00'), 150);
         } else if (enemy.radius > this.player.radius * 1.1 && dist < enemy.radius) {
           this.player.isDead = true;
           this.game.audioManager.playSFX('die');
+          this.shakeCamera(20);
+          this.createExplosion(this.player.x, this.player.y, 50, 0xff0000, 2.5); // Bị ăn nổ tung
           
           if (this.hasRevived) {
             this.game.switchScene('GameOver', { score: this.player.score });
@@ -435,12 +449,12 @@ export class GameScene {
             e2.isDead = true;
             e2.container.destroy();
             e1.addScore(e2.score / 2);
-            this.createExplosion(e2.x, e2.y, e2.radius, 0xffaa00);
+            this.createExplosion(e2.x, e2.y, 30, 0xffaa00, 1.5);
           } else if (e2.radius > e1.radius * 1.1 && dist < e2.radius) {
             e1.isDead = true;
             e1.container.destroy();
             e2.addScore(e1.score / 2);
-            this.createExplosion(e1.x, e1.y, e1.radius, 0xffaa00);
+            this.createExplosion(e1.x, e1.y, 30, 0xffaa00, 1.5);
           } else if (e1.radius <= e2.radius * 1.1 && e2.radius <= e1.radius * 1.1) {
             // Bouncing if similar size
             const overlap = e1.radius + e2.radius - dist;
