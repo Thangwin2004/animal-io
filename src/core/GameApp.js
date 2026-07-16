@@ -1,4 +1,4 @@
-import { Application, extensions, CullerPlugin } from 'pixi.js';
+import { Application, extensions } from 'pixi.js';
 import { AssetLoader } from './AssetLoader.js';
 import { BootScene } from '../scenes/BootScene.js';
 import { MenuScene } from '../scenes/MenuScene.js';
@@ -7,8 +7,6 @@ import { GameOverScene } from '../scenes/GameOverScene.js';
 import { AudioManager } from './AudioManager.js';
 import { AdManager } from './AdManager.js';
 import { OverlayManager } from '../ui/OverlayManager.js';
-
-extensions.add(CullerPlugin);
 
 export class GameApp {
   constructor() {

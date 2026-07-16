@@ -160,7 +160,6 @@ export class GameScene {
     }
     
     const enemy = new Enemy(ex, ey, tex, name, mountTex);
-    enemy.container.cullable = true; // Bật culling cho enemy
     enemy.addScore(Math.floor(Math.random() * 50));
     this.enemies.push(enemy);
     this.entityLayer.addChild(enemy.container);
@@ -177,7 +176,6 @@ export class GameScene {
     const y = safeTop + Math.random() * (safeBottom - safeTop);
     const tex = this.game.assetLoader.items[Math.floor(Math.random() * this.game.assetLoader.items.length)];
     const food = new Food(x, y, tex);
-    food.sprite.cullable = true; // Bật culling cho food
     this.foods.push(food);
     this.foodLayer.addChild(food.sprite);
   }
@@ -213,7 +211,7 @@ export class GameScene {
     t.y = y - 10;
     t.vy = -1;
     t.life = 1.0;
-    t.decay = 0.04;
+    t.decay = 0.02;
     t.scale.set(0.2);
     t.dScale = 0.1;
     this.vfxLayer.addChild(t);
