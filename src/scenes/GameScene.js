@@ -364,14 +364,14 @@ export class GameScene {
           this.player.addScore(enemy.score / 2);
           this.game.audioManager.playSFX('eat');
           this.shakeCamera(15);
-          this.createExplosion(enemy.x, enemy.y, 40, 0xff3333, 2); // Hạt lớn bùng nổ
-          this.createFloatingText(enemy.x, enemy.y, 'YUMMY!', '#ff0000');
-          setTimeout(() => this.createFloatingText(enemy.x, enemy.y, '+' + Math.floor(enemy.score / 2), '#ffaa00'), 150);
+          this.createExplosion(eCx, eCy, 40, 0xff3333, 2); // Nổ ở tâm nhân vật
+          this.createFloatingText(eCx, eCy, 'YUMMY!', '#ff0000');
+          setTimeout(() => this.createFloatingText(eCx, eCy, '+' + Math.floor(enemy.score / 2), '#ffaa00'), 150);
         } else if (enemy.radius > this.player.radius * 1.1 && dist < enemy.radius) {
           this.player.isDead = true;
           this.game.audioManager.playSFX('die');
           this.shakeCamera(20);
-          this.createExplosion(this.player.x, this.player.y, 50, 0xff0000, 2.5); // Bị ăn nổ tung
+          this.createExplosion(pCx, pCy, 50, 0xff0000, 2.5); // Nổ ở tâm player
           
           if (this.hasRevived) {
             this.game.switchScene('GameOver', { score: this.player.score });
@@ -449,12 +449,16 @@ export class GameScene {
             e2.isDead = true;
             e2.container.destroy();
             e1.addScore(e2.score / 2);
-            this.createExplosion(e2.x, e2.y, 30, 0xffaa00, 1.5);
+            const e2Cx = e2.x;
+            const e2Cy = e2.y - 40 * (e2.sizeScale || 1);
+            this.createExplosion(e2Cx, e2Cy, 30, 0xffaa00, 1.5);
           } else if (e2.radius > e1.radius * 1.1 && dist < e2.radius) {
             e1.isDead = true;
             e1.container.destroy();
             e2.addScore(e1.score / 2);
-            this.createExplosion(e1.x, e1.y, 30, 0xffaa00, 1.5);
+            const e1Cx = e1.x;
+            const e1Cy = e1.y - 40 * (e1.sizeScale || 1);
+            this.createExplosion(e1Cx, e1Cy, 30, 0xffaa00, 1.5);
           } else if (e1.radius <= e2.radius * 1.1 && e2.radius <= e1.radius * 1.1) {
             // Bouncing if similar size
             const overlap = e1.radius + e2.radius - dist;
