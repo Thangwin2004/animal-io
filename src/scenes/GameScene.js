@@ -314,8 +314,12 @@ export class GameScene {
         food.sprite.destroy();
         this.player.addScore(1);
         this.game.audioManager.playSFX('pop');
-        this.createExplosion(food.x, food.y, 10, 0x4CAF50, 0.5); // Hạt nhỏ
-        this.createFloatingText(food.x, food.y, '+1', '#00ff00');
+        this.createExplosion(food.x, food.y, 10, 0x4CAF50, 0.5); // Hạt nhỏ ở chỗ thức ăn
+        
+        // Hiển thị +1 ở trên đầu người ăn
+        const pCxText = this.player.x;
+        const pCyText = this.player.y - 120 * (this.player.sizeScale || 1);
+        this.createFloatingText(pCxText, pCyText, '+1', '#00ff00');
       }
     }
 
@@ -338,6 +342,10 @@ export class GameScene {
           food.sprite.destroy();
           enemy.addScore(1);
           this.createExplosion(food.x, food.y, 8, 0x4CAF50, 0.4);
+          
+          const eHeadX = enemy.x;
+          const eHeadY = enemy.y - 120 * (enemy.sizeScale || 1);
+          this.createFloatingText(eHeadX, eHeadY, '+1', '#00ff00');
         }
       }
     }
@@ -364,9 +372,13 @@ export class GameScene {
           this.player.addScore(enemy.score / 2);
           this.game.audioManager.playSFX('eat');
           this.shakeCamera(15);
-          this.createExplosion(eCx, eCy, 40, 0xff3333, 2); // Nổ ở tâm nhân vật
-          this.createFloatingText(eCx, eCy, 'YUMMY!', '#ff0000');
-          setTimeout(() => this.createFloatingText(eCx, eCy, '+' + Math.floor(enemy.score / 2), '#ffaa00'), 150);
+          this.createExplosion(eCx, eCy, 40, 0xff3333, 2); // Nổ ở tâm nhân vật bị ăn
+          this.createFloatingText(eCx, eCy, 'YUMMY!', '#ff0000'); // Chữ YUMMY ở chỗ bị ăn
+          
+          // Điểm cộng bay lên ở đầu người chơi
+          const pHeadX = this.player.x;
+          const pHeadY = this.player.y - 120 * (this.player.sizeScale || 1);
+          setTimeout(() => this.createFloatingText(pHeadX, pHeadY, '+' + Math.floor(enemy.score / 2), '#ffaa00'), 150);
         } else if (enemy.radius > this.player.radius * 1.1 && dist < enemy.radius) {
           this.player.isDead = true;
           this.game.audioManager.playSFX('die');
@@ -452,6 +464,10 @@ export class GameScene {
             const e2Cx = e2.x;
             const e2Cy = e2.y - 40 * (e2.sizeScale || 1);
             this.createExplosion(e2Cx, e2Cy, 30, 0xffaa00, 1.5);
+            
+            const e1HeadX = e1.x;
+            const e1HeadY = e1.y - 120 * (e1.sizeScale || 1);
+            this.createFloatingText(e1HeadX, e1HeadY, '+' + Math.floor(e2.score / 2), '#ffaa00');
           } else if (e2.radius > e1.radius * 1.1 && dist < e2.radius) {
             e1.isDead = true;
             e1.container.destroy();
@@ -459,6 +475,10 @@ export class GameScene {
             const e1Cx = e1.x;
             const e1Cy = e1.y - 40 * (e1.sizeScale || 1);
             this.createExplosion(e1Cx, e1Cy, 30, 0xffaa00, 1.5);
+            
+            const e2HeadX = e2.x;
+            const e2HeadY = e2.y - 120 * (e2.sizeScale || 1);
+            this.createFloatingText(e2HeadX, e2HeadY, '+' + Math.floor(e1.score / 2), '#ffaa00');
           } else if (e1.radius <= e2.radius * 1.1 && e2.radius <= e1.radius * 1.1) {
             // Bouncing if similar size
             const overlap = e1.radius + e2.radius - dist;
