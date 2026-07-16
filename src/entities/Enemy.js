@@ -108,7 +108,7 @@ export class Enemy {
     if (this.facingRight === undefined) this.facingRight = this.bodyContainer.scale.x < 0;
 
     const isMoving = dist > 0.5;
-    const bouncePhase = Date.now() * 0.015;
+    const bouncePhase = Date.now() * 0.008;
     
     if (isMoving) {
       this.bodyContainer.y = -Math.abs(Math.sin(bouncePhase)) * 15 * this.sizeScale;
