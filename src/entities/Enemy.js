@@ -6,6 +6,7 @@ export class Enemy {
     this.y = y;
     this.targetX = x;
     this.targetY = y;
+    this.name = name;
     this.isDead = false;
     
     this.container = new Container();
@@ -53,7 +54,7 @@ export class Enemy {
     this.container.addChild(this.nameText);
 
     this.score = 0;
-    this.radius = 20;
+    this.radius = 40;
     this.baseSpeed = 2.5 + Math.random() * 2;
     this.speed = this.baseSpeed;
     
@@ -62,9 +63,15 @@ export class Enemy {
 
   addScore(points) {
     this.score += points;
-    const newScale = 1 + Math.log10(this.score / 20 + 1) * 2.5; // Giảm một chút để không bị khổng lồ quá nhanh
+    // Tính từ 100 điểm trở lên thì độ to tăng tuyến tính để dễ dàng nhận ra ai to hơn
+    let newScale = 1;
+    if (this.score <= 100) {
+      newScale = 1 + (this.score / 100) * 1.5;
+    } else {
+      newScale = 2.5 + (this.score - 100) * 0.0015; // Giảm mạnh tốc độ phình to
+    }
     this.sizeScale = newScale;
-    this.radius = 20 * newScale;
+    this.radius = 40 * newScale;
     this.nameText.y = -140 * newScale;
     this.nameText.text = this.score.toString();
 
@@ -91,11 +98,11 @@ export class Enemy {
     
     // Giới hạn nhân vật không được đi ra khỏi bản đồ
     const currentScale = this.sizeScale || 1;
-    // Bỏ qua viền trong suốt của texture, dùng offset chuẩn để không bị cắt đầu và chân chạm mép
-    const visualLeft = 40 * currentScale;
-    const visualRight = 40 * currentScale;
-    const visualTop = 120 * currentScale; // Đủ cao để không bị cắt mất avatar
-    const visualBottom = 0; // Bằng 0 để chân chạm hẳn sát xuống mép dưới bản đồ
+    // Bỏ qua viền trong suốt của texture, dùng offset chuẩn để không bị lọt vào hàng cây
+    const visualLeft = 60 + 20 * Math.sqrt(currentScale);
+    const visualRight = 60 + 20 * Math.sqrt(currentScale);
+    const visualTop = 100 + 40 * Math.sqrt(currentScale);
+    const visualBottom = 60;
 
     if (this.x < visualLeft) this.x = visualLeft;
     if (this.x > worldWidth - visualRight) this.x = worldWidth - visualRight;

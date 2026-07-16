@@ -33,10 +33,14 @@ export class AudioManager {
   }
 
   loadSFX() {
-    this.loadAudioBuffer("/assest/music/CharKnockDown.mp3", "die");
-    this.loadAudioBuffer("/assest/music/Bounce2.mp3", "bounce");
-    this.loadAudioBuffer("/assest/music/LabelCollect.mp3", "pop");
-    this.loadAudioBuffer("/assest/music/LevelUp.mp3", "eat");
+    this.loadAudioBuffer("/assest/music/CharKnockDown.mp3", "die");      // Bị ăn - giữ nguyên
+    this.loadAudioBuffer("/assest/music/Bounce1.mp3", "bounce");         // Va chạm nảy
+    this.loadAudioBuffer("/assest/music/Card1.mp3", "pop");              // Thu thập food - gọn nhẹ
+    this.loadAudioBuffer("/assest/music/Chest_Impact.mp3", "eat");       // Húc bay player - impact mạnh
+    this.loadAudioBuffer("/assest/music/Button1.mp3", "click");          // Nút bấm
+    this.loadAudioBuffer("/assest/music/CharHit.mp3", "hit");            // Va chạm húc nhẹ
+    this.loadAudioBuffer("/assest/music/CharSpawn.mp3", "spawn");        // Hồi sinh
+    this.loadAudioBuffer("/assest/music/EndGameWin.wav", "win");         // Chiến thắng
   }
 
   playBGM(url, volume = 0.05) {
@@ -56,13 +60,18 @@ export class AudioManager {
     this.bgm.play().catch(e => console.log("BGM Deferred until interaction"));
   }
 
-  playSFX(type) {
+  playSFX(type, volume = 1.0) {
     if (this.ctx.state === 'suspended') return;
+    
+    // Create local gain for this specific SFX instance
+    const localGain = this.ctx.createGain();
+    localGain.gain.value = volume;
+    localGain.connect(this.sfxGain);
     
     if (this.buffers[type]) {
       const source = this.ctx.createBufferSource();
       source.buffer = this.buffers[type];
-      source.connect(this.sfxGain);
+      source.connect(localGain);
       source.start(0);
       return;
     }
@@ -71,7 +80,7 @@ export class AudioManager {
     const gain = this.ctx.createGain();
 
     osc.connect(gain);
-    gain.connect(this.sfxGain);
+    gain.connect(localGain);
 
     const now = this.ctx.currentTime;
     

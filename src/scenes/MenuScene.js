@@ -6,24 +6,55 @@ export class MenuScene {
     this.game = game;
     this.container = new Container();
 
-    this.bg = new Graphics();
+    this.bg = new Sprite(this.game.assetLoader.ui.menuBg);
     this.container.addChild(this.bg);
 
     this.bubbles = new Graphics();
     this.container.addChild(this.bubbles);
 
-    const style = new TextStyle({
+    this.titleContainer = new Container();
+    this.container.addChild(this.titleContainer);
+
+    const commonStyle = {
       fontFamily: "'Fredoka', 'Baloo 2', 'Be Vietnam Pro', sans-serif",
-      fontSize: 80, 
-      fill: '#FFB74D',
-      stroke: { color: '#ffffff', width: 8, join: 'round' }, 
-      dropShadow: { color: '#F57C00', alpha: 0.3, distance: 4, blur: 4 },
-      letterSpacing: 2
+      fontWeight: '900',
+      stroke: { color: '#ffffff', width: 22, join: 'round' }, 
+      dropShadow: { color: '#1565C0', alpha: 1, distance: 10, blur: 0 }
+    };
+
+    const styleYellow = new TextStyle({
+      ...commonStyle,
+      fontSize: 130, 
+      fill: '#FFB300'
     });
 
-    this.title = new Text({ text: 'BỘ LẠC.IO', style });
-    this.title.anchor.set(0.5);
-    this.container.addChild(this.title);
+    this.textBo = new Text({ text: 'BỘ', style: styleYellow });
+    this.textBo.anchor.set(0.5);
+    this.textBo.x = 20;
+    this.textBo.y = -60;
+
+    this.textLac = new Text({ text: 'LẠC', style: styleYellow });
+    this.textLac.anchor.set(0.5);
+    this.textLac.x = -40;
+    this.textLac.y = 50;
+
+    const styleBlue = new TextStyle({
+      ...commonStyle,
+      fontSize: 70,
+      fill: '#2196F3',
+      stroke: { color: '#ffffff', width: 14, join: 'round' },
+      dropShadow: { color: '#0D47A1', alpha: 1, distance: 6, blur: 0 }
+    });
+
+    this.textIo = new Text({ text: '.IO', style: styleBlue });
+    this.textIo.anchor.set(0.5);
+    this.textIo.x = 110;
+    this.textIo.y = 85;
+
+    // Thứ tự add quan trọng để chữ dưới đè stroke lên chữ trên như ảnh
+    this.titleContainer.addChild(this.textBo);
+    this.titleContainer.addChild(this.textLac);
+    this.titleContainer.addChild(this.textIo);
 
     this.avatarIndex = 0;
     
@@ -40,36 +71,42 @@ export class MenuScene {
     });
     this.container.addChild(this.avatarSprite);
 
-    // Play Button (Tăng bán kính từ 35 lên 50)
+    // Nút Play
     this.playBtn = new Button("CHƠI NGAY", () => {
       this.game.audioManager.playSFX('click');
       this.game.switchScene('Game');
-    }, 50); 
+    }, 40); 
     this.container.addChild(this.playBtn);
 
-    // Settings
-    this.settingsBtn = new IconBtn(null, () => {
+    // Nút Cài đặt (Icon Button)
+    this.settingsBtn = new IconBtn('gear', () => {
       this.game.audioManager.playSFX('click');
       this.game.overlayManager.showSettings();
-    });
+    }, 35, '', 'blue');
     this.container.addChild(this.settingsBtn);
 
-    // Leaderboard
-    this.leaderboardBtn = new IconBtn(null, () => {
+    // Nút Bảng Vàng (Icon Button)
+    this.leaderboardBtn = new IconBtn('trophy', () => {
       this.game.audioManager.playSFX('click');
       this.game.overlayManager.showLeaderboard();
-    });
+    }, 35, '', 'yellow');
     this.container.addChild(this.leaderboardBtn);
   }
 
   onEnter() {
+    // Phát nhạc nền cho màn hình chính
+    this.game.audioManager.playBGM('/assest/music/BGMM_Login.mp3', 0.05);
+
     if (this.game.assetLoader.avatars.length > 0) {
       this.avatarSprite.texture = this.game.assetLoader.avatars[this.avatarIndex];
       if (this.updateAvatarScale) this.updateAvatarScale();
     }
-    // Tăng bán kính các nút icon từ 36 lên 50
-    this.settingsBtn.setTexture(this.game.assetLoader.ui.settingBtn, 50);
-    this.leaderboardBtn.setTexture(this.game.assetLoader.ui.leaderboardBtn, 50);
+    
+    if (this.game.assetLoader.ui.menuBg) {
+      this.bg.texture = this.game.assetLoader.ui.menuBg;
+      this.drawBackground(this.game.app.screen.width, this.game.app.screen.height);
+    }
+    
     this.avatarTimer = 0;
     this.elapsed = 0;
   }
@@ -79,8 +116,8 @@ export class MenuScene {
       this.avatarTimer += ticker.deltaTime;
       this.elapsed += ticker.deltaTime;
       
-      // Avatar bay lên xuống nhẹ nhàng
-      this.avatarSprite.y = this.game.app.screen.height * 0.45 + Math.sin(this.elapsed * 0.05) * 10;
+      // Avatar đứng giữa làng, nhịp thở nhẹ nhàng
+      this.avatarSprite.y = this.game.app.screen.height * 0.56 + Math.sin(this.elapsed * 0.05) * 4;
 
       // Tự động chuyển nhân vật sau mỗi ~3 giây
       if (this.avatarTimer > 180) {
@@ -113,44 +150,46 @@ export class MenuScene {
     }
   }
 
-  onResize(w, h) {
-    this.bg.clear().rect(0, 0, w, h).fill('#DDF4FF');
-
-    // Vẽ bong bóng trang trí
-    this.bubbles.clear();
-    for(let i=0; i<12; i++) {
-       const x = ((i * 37) % w);
-       const y = ((i * 59) % h);
-       const r = (i * 7 % 30) + 20;
-       this.bubbles.circle(x, y, r).fill({ color: 0xffffff, alpha: 0.12 });
+  drawBackground(w, h) {
+    if (this.bg && this.bg.texture) {
+      // Scale để cover toàn bộ màn hình (dữ tỉ lệ)
+      const scale = Math.max(w / this.bg.texture.width, h / this.bg.texture.height);
+      this.bg.scale.set(scale);
+      
+      // Căn giữa hình nền
+      this.bg.x = w / 2 - (this.bg.texture.width * scale) / 2;
+      this.bg.y = h / 2 - (this.bg.texture.height * scale) / 2;
     }
+  }
+
+  onResize(w, h) {
+    this.drawBackground(w, h);
 
     // Tinh chỉnh tỷ lệ hiển thị cho mobile (lấy mốc 500 thay vì 800 để nút to hơn trên đt)
     const scale = Math.min(w / 450, h / 700, 1.2);
     
-    this.title.scale.set(scale);
-    
     // Tiêu đề
-    this.title.x = w / 2;
-    this.title.y = h * 0.18;
+    this.titleContainer.x = w / 2;
+    this.titleContainer.y = h * 0.16;
+    this.titleContainer.scale.set(scale * 0.8); // Giảm một chút vì font to ra
 
     // Kích thước Avatar
     this.updateAvatarScale();
     this.avatarSprite.x = w / 2;
-    this.avatarSprite.y = h * 0.45;
+    this.avatarSprite.y = h * 0.56; // Đứng ở giữa làng
 
     // Nút Play ở trên
     this.playBtn.scale.set(scale);
     this.playBtn.x = w / 2;
-    this.playBtn.y = h * 0.72;
+    this.playBtn.y = h * 0.74;
 
     // 2 Nút Icon ở dưới nút Play (nới khoảng cách ra để không bị đè do nút to lên)
     this.settingsBtn.scale.set(scale);
-    this.settingsBtn.x = w / 2 + 100 * scale;
-    this.settingsBtn.y = h * 0.88;
+    this.settingsBtn.x = w / 2 + 80 * scale;
+    this.settingsBtn.y = h * 0.85;
 
     this.leaderboardBtn.scale.set(scale);
-    this.leaderboardBtn.x = w / 2 - 100 * scale;
-    this.leaderboardBtn.y = h * 0.88;
+    this.leaderboardBtn.x = w / 2 - 80 * scale;
+    this.leaderboardBtn.y = h * 0.85;
   }
 }

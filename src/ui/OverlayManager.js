@@ -10,6 +10,17 @@ export class OverlayManager {
     return overlay;
   }
 
+  createCloseButton(onClick) {
+    const btn = document.createElement("button");
+    btn.style.cssText = `position:absolute; top:-15px; right:-15px; width:44px; height:44px; border-radius:50%; border:3px solid #fff; background:#E53935; box-shadow:0 3px 0 #C62828, 0 4px 10px rgba(0,0,0,0.2); cursor:pointer; z-index:10; transition:transform 0.1s; display:flex; justify-content:center; align-items:center; padding:0;`;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24"><path fill="#ffffff" stroke="#ffffff" stroke-width="2" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41z"/></svg>`;
+    btn.onclick = onClick;
+    btn.onmousedown = () => btn.style.transform = "scale(0.9) translateY(2px)";
+    btn.onmouseup = () => btn.style.transform = "scale(1) translateY(0)";
+    btn.onmouseleave = () => btn.style.transform = "scale(1) translateY(0)";
+    return btn;
+  }
+
   showReviveOffer(onRevive, onSkip) {
     const overlay = this.createBaseOverlay('revive-overlay');
 
@@ -31,8 +42,8 @@ export class OverlayManager {
     title.style.cssText = "color:#5D4037; font-family:'Fredoka', 'Baloo 2', 'Be Vietnam Pro', sans-serif; font-size:22px; font-weight:bold; margin-top:20px; text-align:center; padding: 0 20px;";
 
     const yesBtn = document.createElement("button");
-    yesBtn.style.cssText = "margin-top:30px; background:linear-gradient(to bottom, #FFCC80, #FFB74D); border:3px solid #fff; border-radius:15px; padding:12px 60px; color:#5D4037; font-family:'Fredoka', 'Impact', 'Arial Black', sans-serif; font-size:26px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow: 0 6px 0 #F57C00, 0 10px 15px rgba(0,0,0,0.2); transition: transform 0.1s;";
-    yesBtn.innerHTML = `<img src="/assest/iconbtn/images.png" style="height:30px;"> CÓ`;
+    yesBtn.style.cssText = "margin-top:30px; background:linear-gradient(to bottom, #FFCC80, #FFB74D); border:3px solid #fff; border-radius:24px; padding:12px 50px; color:#5D4037; font-family:'Fredoka', 'Impact', 'Arial Black', sans-serif; font-size:24px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow: 0 6px 0 #F57C00, 0 10px 15px rgba(0,0,0,0.2); transition: transform 0.1s;";
+    yesBtn.innerHTML = `<svg viewBox="0 0 24 24" width="28" height="28"><path fill="#5D4037" d="M8,5.14V19.14L19,12.14L8,5.14Z" /></svg> CÓ`;
     
     yesBtn.onmousedown = () => yesBtn.style.transform = "translateY(6px)";
     yesBtn.onmouseup = () => yesBtn.style.transform = "translateY(0)";
@@ -155,30 +166,38 @@ export class OverlayManager {
 
     if (isIngame) {
       const btnRow = document.createElement("div");
-      btnRow.style.cssText = `display:flex; justify-content:center; gap:40px; margin-top:5px;`;
+      btnRow.style.cssText = `display:flex; justify-content:center; gap:30px; margin-top:5px;`;
 
-      const createNavBtn = (iconUrl, onClick) => {
+      const createNavBtn = (iconName, onClick, colorTop, colorBot, colorShadow) => {
         const btn = document.createElement("button");
-        btn.style.cssText = `width:70px; height:70px; border:none; background:transparent; background-image:url('${iconUrl}'); background-size:contain; background-position:center; background-repeat:no-repeat; cursor:pointer; transition:transform 0.1s;`;
+        btn.style.cssText = `width:64px; height:64px; border-radius:50%; border:3px solid #fff; background:linear-gradient(to bottom, ${colorTop}, ${colorBot}); box-shadow: 0 4px 0 ${colorShadow}, 0 6px 10px rgba(0,0,0,0.2); cursor:pointer; transition:transform 0.1s; display:flex; justify-content:center; align-items:center; padding:0;`;
+        
+        const ICONS = {
+            'home': '<svg viewBox="0 0 24 24" width="34" height="34"><path fill="#ffffff" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>',
+            'replay': '<svg viewBox="0 0 24 24" width="34" height="34"><path fill="#ffffff" d="M17.65,6.35C16.2,4.9,14.21,4,12,4c-4.42,0-7.99,3.58-7.99,8s3.57,8,7.99,8c3.73,0,6.84-2.55,7.73-6h-2.08 c-0.82,2.33-3.04,4-5.65,4c-3.31,0-6-2.69-6-6s2.69-6,6-6c1.66,0,3.14,0.69,4.22,1.78L13,11h7V4L17.65,6.35z"/></svg>'
+        };
+        btn.innerHTML = ICONS[iconName];
+
         btn.onclick = () => {
           this.game.audioManager.playSFX('click');
           overlay.remove();
-          onClick();
+          if (onClick) onClick();
         };
-        btn.onmousedown = () => btn.style.transform = "scale(0.9)";
-        btn.onmouseup = () => btn.style.transform = "scale(1)";
-        btn.onmouseleave = () => btn.style.transform = "scale(1)";
+        btn.onmousedown = () => btn.style.transform = "scale(0.9) translateY(4px)";
+        btn.onmouseup = () => btn.style.transform = "scale(1) translateY(0)";
+        btn.onmouseleave = () => btn.style.transform = "scale(1) translateY(0)";
         return btn;
       };
 
-      const homeBtn = createNavBtn('/assest/iconbtn/Home_btn.png', () => {
+      const homeBtn = createNavBtn('home', () => {
         if (onResume) onResume();
         this.game.switchScene('Menu');
-      });
-      const replayBtn = createNavBtn('/assest/iconbtn/replay_btn.png', () => {
+      }, '#4FC3F7', '#039BE5', '#0277BD'); // Blue button
+      
+      const replayBtn = createNavBtn('replay', () => {
         if (onResume) onResume();
         this.game.switchScene('Game');
-      });
+      }, '#FFD54F', '#FFB300', '#FF8F00'); // Yellow button
       
       btnRow.appendChild(homeBtn);
       btnRow.appendChild(replayBtn);
@@ -186,16 +205,11 @@ export class OverlayManager {
     }
 
     // Close Button
-    const closeBtn = document.createElement("button");
-    closeBtn.style.cssText = `position:absolute; top:-15px; right:-10px; width:60px; height:60px; border:none; background:transparent; background-image:url('/assest/iconbtn/close_btn.png'); background-size:85%; background-position:center; background-repeat:no-repeat; cursor:pointer; z-index:10; transition:transform 0.1s;`;
-    closeBtn.onclick = () => {
+    const closeBtn = this.createCloseButton(() => {
       this.game.audioManager.playSFX('click');
       overlay.remove();
       if (onResume) onResume();
-    };
-    closeBtn.onmousedown = () => closeBtn.style.transform = "scale(0.9)";
-    closeBtn.onmouseup = () => closeBtn.style.transform = "scale(1)";
-    closeBtn.onmouseleave = () => closeBtn.style.transform = "scale(1)";
+    });
 
     card.appendChild(cardInner);
     card.appendChild(ribbon);
@@ -281,15 +295,10 @@ export class OverlayManager {
                         <div style="flex:1; text-align:right; font-size:18px;">${pbScore}</div>`;
 
     // Close Button (X) at Top Right
-    const closeBtn = document.createElement("button");
-    closeBtn.style.cssText = `position:absolute; top:-15px; right:-10px; width:60px; height:60px; border:none; background:transparent; background-image:url('/assest/iconbtn/close_btn.png'); background-size:85%; background-position:center; background-repeat:no-repeat; cursor:pointer; z-index:10; transition:transform 0.1s;`;
-    closeBtn.onclick = () => {
+    const closeBtn = this.createCloseButton(() => {
       this.game.audioManager.playSFX('click');
       overlay.remove();
-    };
-    closeBtn.onmousedown = () => closeBtn.style.transform = "scale(0.9)";
-    closeBtn.onmouseup = () => closeBtn.style.transform = "scale(1)";
-    closeBtn.onmouseleave = () => closeBtn.style.transform = "scale(1)";
+    });
 
     cardInner.appendChild(headers);
     cardInner.appendChild(list);

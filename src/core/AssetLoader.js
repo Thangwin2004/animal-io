@@ -17,6 +17,7 @@ export class AssetLoader {
     this.ui.closeBtn = await Assets.load('/assest/iconbtn/close_btn.png');
     this.ui.backBtn = await Assets.load('/assest/iconbtn/back_btn.png');
     this.ui.tuanNhun = await Assets.load('/assest/item/TuanNhun.png');
+    this.ui.menuBg = await Assets.load('/assest/image/menu_bg.png');
     if (onProgress) onProgress(0.2);
 
     // Tải items (Thức ăn)
@@ -47,10 +48,12 @@ export class AssetLoader {
       '040_avatar_hitbear.png', '041_avatar_echxanh2.png', '042_avatar_zolype2.png',
       '043_avatar_cat_lick2.png', '044_avatar_poolpanda2.png'
     ];
-    
+
     let loaded = 0;
     for (const name of avatarNames) {
       const tex = await Assets.load(`/assest/image/imagenobackgrd/${name}`);
+      // Lấy tên nhân vật từ tên file (vd: '001_avatar_laclac.png' -> 'laclac')
+      tex.characterName = name.replace('.png', '').replace(/^\d+_avatar_/, '');
       this.avatars.push(tex);
       loaded++;
       if (onProgress) onProgress(0.2 + (loaded / avatarNames.length) * 0.8);
