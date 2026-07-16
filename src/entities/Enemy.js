@@ -44,8 +44,8 @@ export class Enemy {
     this.container.addChild(this.bodyContainer);
 
     const style = new TextStyle({
-      fontFamily: 'Arial', fontSize: 24, fill: '#ffcc00', fontWeight: 'bold',
-      stroke: { color: '#000000', width: 4 }
+      fontFamily: 'Arial', fontSize: 28, fill: '#ffeb3b', fontWeight: 'bold',
+      stroke: { color: '#000000', width: 5 }
     });
     this.nameText = new Text({ text: '0', style });
     this.nameText.anchor.set(0.5);

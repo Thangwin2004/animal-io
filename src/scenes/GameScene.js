@@ -18,11 +18,11 @@ export class GameScene {
 
     this.bg = new Graphics();
     
-    // Nền cỏ xanh (kiểu đồng cỏ thảo nguyên Hyper Casual)
-    this.bg.rect(0, 0, this.worldWidth, this.worldHeight).fill('#A5D6A7');
+    // Nền cỏ xanh đậm để làm nổi bật item và nhân vật
+    this.bg.rect(0, 0, this.worldWidth, this.worldHeight).fill('#2E7D32');
     
-    // Lưới ô vuông mờ chuẩn game .io
-    this.bg.setStrokeStyle({ width: 3, color: '#81C784', alpha: 0.6 });
+    // Lưới ô vuông mờ chuẩn game .io (màu tối hơn)
+    this.bg.setStrokeStyle({ width: 3, color: '#1B5E20', alpha: 0.8 });
     for (let i = 0; i <= this.worldWidth; i += 150) {
       this.bg.moveTo(i, 0).lineTo(i, this.worldHeight);
       this.bg.moveTo(0, i).lineTo(this.worldWidth, i);
@@ -36,13 +36,13 @@ export class GameScene {
       const type = Math.random();
       
       if (type < 0.5) {
-        // Cụm cỏ xanh đậm
-        this.bg.circle(x, y, 8 + Math.random()*6).fill('#81C784');
-        this.bg.circle(x+10, y+4, 6 + Math.random()*4).fill('#81C784');
-        this.bg.circle(x-10, y+4, 6 + Math.random()*4).fill('#81C784');
+        // Cụm cỏ xanh đậm (sáng hơn nền một chút)
+        this.bg.circle(x, y, 8 + Math.random()*6).fill('#4CAF50');
+        this.bg.circle(x+10, y+4, 6 + Math.random()*4).fill('#4CAF50');
+        this.bg.circle(x-10, y+4, 6 + Math.random()*4).fill('#4CAF50');
       } else if (type < 0.8) {
-        // Bãi đất nện mờ (vàng kem)
-        this.bg.ellipse(x, y, 20 + Math.random()*20, 10 + Math.random()*10).fill({color: '#FFF3D6', alpha: 0.6});
+        // Bãi đất nện mờ (vàng kem, độ mờ thấp để hòa vào nền tối)
+        this.bg.ellipse(x, y, 20 + Math.random()*20, 10 + Math.random()*10).fill({color: '#FFF3D6', alpha: 0.3});
       } else {
         // Khóm hoa cúc nhỏ xíu
         for(let j=0; j<5; j++) { // 5 cánh trắng

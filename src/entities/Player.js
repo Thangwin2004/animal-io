@@ -44,8 +44,8 @@ export class Player {
     this.container.addChild(this.bodyContainer);
 
     const style = new TextStyle({
-      fontFamily: 'Arial', fontSize: 28, fill: '#00ff00', fontWeight: 'bold',
-      stroke: { color: '#000000', width: 4 }
+      fontFamily: 'Arial', fontSize: 32, fill: '#ffffff', fontWeight: 'bold',
+      stroke: { color: '#000000', width: 5 }
     });
     this.nameText = new Text({ text: '0', style });
     this.nameText.anchor.set(0.5);
