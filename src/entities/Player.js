@@ -44,12 +44,12 @@ export class Player {
     this.container.addChild(this.bodyContainer);
 
     const style = new TextStyle({
-      fontFamily: 'Arial', fontSize: 20, fill: '#00ff00',
-      stroke: { color: '#000000', width: 3 }
+      fontFamily: 'Arial', fontSize: 28, fill: '#00ff00', fontWeight: 'bold',
+      stroke: { color: '#000000', width: 4 }
     });
     this.nameText = new Text({ text: '0', style });
     this.nameText.anchor.set(0.5);
-    this.nameText.y = -80;
+    this.nameText.y = -140;
     this.container.addChild(this.nameText);
 
     this.score = 0;
@@ -63,7 +63,7 @@ export class Player {
     const newScale = 1 + Math.log10(this.score / 20 + 1) * 2.5; // Giảm một chút để không bị khổng lồ quá nhanh
     this.sizeScale = newScale;
     this.radius = 20 * newScale;
-    this.nameText.y = -80 * newScale;
+    this.nameText.y = -140 * newScale;
     this.nameText.text = this.score.toString();
 
     // Cơ chế: Càng to đi càng chậm
