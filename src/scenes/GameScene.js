@@ -244,7 +244,14 @@ export class GameScene {
     const screenH = this.game.app.screen.height;
     
     // Zoom out động: Càng to thì camera càng lùi ra xa
-    const activeScale = (this.baseCameraScale || 1) / Math.pow(this.player.sizeScale || 1, 0.4);
+    let activeScale = (this.baseCameraScale || 1) / Math.pow(this.player.sizeScale || 1, 0.4);
+    
+    // Prevent zooming out so much that the map is smaller than the screen
+    const minScaleX = screenW / this.worldWidth;
+    const minScaleY = screenH / this.worldHeight;
+    const minActiveScale = Math.max(minScaleX, minScaleY);
+    
+    activeScale = Math.max(activeScale, minActiveScale);
     this.camera.scale.set(activeScale);
 
     // Tính toán lại vị trí Camera có nhân với activeScale
