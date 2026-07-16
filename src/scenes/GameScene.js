@@ -458,9 +458,9 @@ export class GameScene {
   onResize(w, h) {
     const scale = Math.min(w / 800, h / 600, 1.2);
     
-    // Đảm bảo không thu nhỏ quá mức trên điện thoại (tối thiểu 0.7 để đỡ mờ)
-    this.baseCameraScale = Math.min(w, h) / 800;
-    this.baseCameraScale = Math.max(0.7, Math.min(this.baseCameraScale, 1.2));
+    // Thu nhỏ camera để bao quát xung quanh (tối thiểu 0.45)
+    this.baseCameraScale = Math.min(w, h) / 900;
+    this.baseCameraScale = Math.max(0.45, Math.min(this.baseCameraScale, 1.2));
 
     if (this.settingsBtn) {
       const uiScale = Math.max(0.6, scale);

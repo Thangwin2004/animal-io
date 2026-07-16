@@ -26,9 +26,9 @@ export class GameApp {
     await this.app.init({
       resizeTo: window,
       backgroundColor: 0x1a1a1a, // Dark
-      resolution: 1, // Ép độ phân giải 1 để tránh lag trên màn hình DPI cao
+      resolution: Math.min(window.devicePixelRatio || 1, 2), // Tăng độ phân giải lên tối đa 2x để tránh mờ trên mobile
       autoDensity: true,
-      antialias: false // Tắt khử răng cưa để tăng hiệu năng trên mobile
+      antialias: true // Bật khử răng cưa để hình ảnh và chữ mượt mà hơn
     });
     container.appendChild(this.app.canvas);
 
