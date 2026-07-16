@@ -70,13 +70,7 @@ export class GameScene {
     this.uiLayer = new Container();
     this.container.addChild(this.uiLayer);
 
-    const style = new TextStyle({
-      fontFamily: "'Fredoka', 'Baloo 2', 'Be Vietnam Pro', sans-serif", fontSize: 28, fill: '#FFB74D', fontWeight: 'bold', stroke: { color: '#5D4037', width: 4 }
-    });
-    this.scoreText = new Text({ text: 'Điểm: 0', style });
-    this.scoreText.x = 20;
-    this.scoreText.y = 20;
-    this.uiLayer.addChild(this.scoreText);
+
 
     this.settingsBtn = new IconBtn(this.game.assetLoader.ui.settingBtn, () => {
       this.game.audioManager.playSFX('click');
@@ -278,11 +272,7 @@ export class GameScene {
 
     this.checkCollisions();
 
-    // Tối ưu hóa: Chỉ cập nhật Text khi điểm số thực sự thay đổi (Text diffing)
-    const nextScoreText = `Điểm: ${this.player.score}`;
-    if (this.scoreText.text !== nextScoreText) {
-      this.scoreText.text = nextScoreText;
-    }
+
 
     const activeFoods = this.foods.filter(f => !f.isDead).length;
     if (activeFoods < 150) {
@@ -479,11 +469,7 @@ export class GameScene {
       this.settingsBtn.y = 40 * uiScale;
     }
     
-    if (this.scoreText) {
-      this.scoreText.scale.set(scale);
-      this.scoreText.x = 20 * scale;
-      this.scoreText.y = 20 * scale;
-    }
+
   }
 
   getSafePosition() {

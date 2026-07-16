@@ -47,7 +47,7 @@ export class Enemy {
       fontFamily: 'Arial', fontSize: 16, fill: '#ffcccc',
       stroke: { color: '#000000', width: 2 }
     });
-    this.nameText = new Text({ text: name, style });
+    this.nameText = new Text({ text: '0', style });
     this.nameText.anchor.set(0.5);
     this.nameText.y = -80;
     this.container.addChild(this.nameText);
@@ -66,6 +66,7 @@ export class Enemy {
     this.sizeScale = newScale;
     this.radius = 20 * newScale;
     this.nameText.y = -80 * newScale;
+    this.nameText.text = this.score.toString();
 
     const sizeRatio = newScale;
     this.speed = Math.max(1.0, this.baseSpeed / Math.sqrt(sizeRatio));

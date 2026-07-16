@@ -47,7 +47,7 @@ export class Player {
       fontFamily: 'Arial', fontSize: 20, fill: '#00ff00',
       stroke: { color: '#000000', width: 3 }
     });
-    this.nameText = new Text({ text: 'YOU', style });
+    this.nameText = new Text({ text: '0', style });
     this.nameText.anchor.set(0.5);
     this.nameText.y = -80;
     this.container.addChild(this.nameText);
@@ -64,6 +64,7 @@ export class Player {
     this.sizeScale = newScale;
     this.radius = 20 * newScale;
     this.nameText.y = -80 * newScale;
+    this.nameText.text = this.score.toString();
 
     // Cơ chế: Càng to đi càng chậm
     const sizeRatio = newScale;
