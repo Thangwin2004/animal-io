@@ -202,7 +202,7 @@ export class GameScene {
 
   createFloatingText(x, y, text, color = '#FFD54F') {
     const style = new TextStyle({
-      fontFamily: "'Fredoka', 'Baloo 2', 'Be Vietnam Pro', sans-serif", fontSize: 28, fill: color, fontWeight: 'bold', stroke: { color: '#5D4037', width: 4 }
+      fontFamily: 'Arial', fontSize: 48, fill: color, fontWeight: 'bold', stroke: { color: '#000000', width: 6 }
     });
     const t = new Text({ text, style });
     t.anchor.set(0.5);
@@ -298,6 +298,7 @@ export class GameScene {
         food.sprite.destroy();
         this.player.addScore(1);
         this.game.audioManager.playSFX('pop');
+        this.createExplosion(food.x, food.y, 15, 0x4CAF50); // Thêm vfx hạt vỡ ra khi ăn
         this.createFloatingText(food.x, food.y, '+1', '#00ff00');
       }
     }
@@ -320,6 +321,7 @@ export class GameScene {
           this.foodLayer.removeChild(food.sprite);
           food.sprite.destroy();
           enemy.addScore(1);
+          this.createExplosion(food.x, food.y, 15, 0x4CAF50);
         }
       }
     }
