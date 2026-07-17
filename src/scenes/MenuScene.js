@@ -75,7 +75,7 @@ export class MenuScene {
     this.playBtn = new Button("CHƠI NGAY", () => {
       this.game.audioManager.playSFX('click');
       this.game.switchScene('Game');
-    }, 40); 
+    }, 32); 
     this.container.addChild(this.playBtn);
 
     // Nút Cài đặt (Icon Button)
@@ -185,11 +185,11 @@ export class MenuScene {
 
     // 2 Nút Icon ở dưới nút Play (nới khoảng cách ra để không bị đè do nút to lên)
     this.settingsBtn.scale.set(scale);
-    this.settingsBtn.x = w / 2 + 110 * scale;
-    this.settingsBtn.y = this.playBtn.y + 110 * scale;
+    this.settingsBtn.x = w / 2 + 140 * scale;
+    this.settingsBtn.y = this.playBtn.y + 140 * scale;
 
     this.leaderboardBtn.scale.set(scale);
-    this.leaderboardBtn.x = w / 2 - 110 * scale;
-    this.leaderboardBtn.y = this.playBtn.y + 110 * scale;
+    this.leaderboardBtn.x = w / 2 - 140 * scale;
+    this.leaderboardBtn.y = this.playBtn.y + 140 * scale;
   }
 }

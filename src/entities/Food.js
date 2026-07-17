@@ -10,9 +10,9 @@ export class Food {
     this.sprite = new Sprite(texture);
     this.sprite.anchor.set(0.5);
     
-    // Scale cho kích thước thức ăn to hơn (~80px) để không nhầm với hoa cỏ
+    // Scale cho kích thước thức ăn to hơn (~100px) để dễ nhìn trên điện thoại
     if (texture.width > 0 && texture.height > 0) {
-      const scale = Math.min(80 / texture.width, 80 / texture.height);
+      const scale = Math.min(100 / texture.width, 100 / texture.height);
       this.sprite.scale.set(scale);
     } else {
       this.sprite.scale.set(0.25);

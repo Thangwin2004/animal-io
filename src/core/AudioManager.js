@@ -7,7 +7,13 @@ export class AudioManager {
     this.bgmGain.connect(this.ctx.destination);
     this.sfxGain.connect(this.ctx.destination);
 
-    this.bgm = null;
+    this.bgm = new Audio();
+    this.bgm.loop = true;
+    this.bgmSource = this.ctx.createMediaElementSource(this.bgm);
+    this.localBgmGain = this.ctx.createGain();
+    this.bgmSource.connect(this.localBgmGain);
+    this.localBgmGain.connect(this.bgmGain);
+
     this.isBgmMuted = false;
     this.isSfxMuted = false;
     
@@ -16,9 +22,19 @@ export class AudioManager {
     // Resume context on first interaction
     const resumeAudio = () => {
       this.resumeContext();
+      
+      // Unlock / Resume BGM for iOS
+      if (this.bgm.paused) {
+        this.bgm.play().catch(() => {});
+      }
+      
       window.removeEventListener('pointerdown', resumeAudio);
+      window.removeEventListener('touchstart', resumeAudio);
+      window.removeEventListener('click', resumeAudio);
     };
     window.addEventListener('pointerdown', resumeAudio);
+    window.addEventListener('touchstart', resumeAudio);
+    window.addEventListener('click', resumeAudio);
   }
 
   async loadAudioBuffer(url, name) {
@@ -44,24 +60,23 @@ export class AudioManager {
   }
 
   playBGM(url, volume = 0.05) {
-    if (this.bgm) {
-      this.bgm.pause();
+    if (this.bgm.src && this.bgm.src.endsWith(url)) {
+      if (this.bgm.paused) {
+        this.bgm.play().catch(e => console.log("BGM Deferred"));
+      }
+      this.localBgmGain.gain.value = volume;
+      return;
     }
-    this.bgm = new Audio(url);
-    this.bgm.loop = true;
 
-    const source = this.ctx.createMediaElementSource(this.bgm);
-    const localGain = this.ctx.createGain();
-    localGain.gain.value = volume;
-
-    source.connect(localGain);
-    localGain.connect(this.bgmGain);
-
+    this.bgm.pause();
+    this.bgm.src = url;
+    this.bgm.load();
+    this.localBgmGain.gain.value = volume;
     this.bgm.play().catch(e => console.log("BGM Deferred until interaction"));
   }
 
   playSFX(type, volume = 1.0) {
-    if (this.ctx.state === 'suspended') return;
+    this.resumeContext();
     
     // Create local gain for this specific SFX instance
     const localGain = this.ctx.createGain();
@@ -114,6 +129,9 @@ export class AudioManager {
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
       osc.start(now);
       osc.stop(now + 0.05);
+    } else {
+      osc.disconnect();
+      gain.disconnect();
     }
   }
 

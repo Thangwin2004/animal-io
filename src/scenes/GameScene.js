@@ -4,6 +4,7 @@ import { Enemy } from '../entities/Enemy.js';
 import { Food } from '../entities/Food.js';
 import { checkCircleCollision } from '../utils/math.js';
 import { IconBtn } from '../ui/Button.js';
+import { VirtualJoystick } from '../ui/Joystick.js';
 
 export class GameScene {
   constructor(game) {
@@ -48,14 +49,41 @@ export class GameScene {
     this.foods = [];
     this.particles = [];
 
+    this.joystick = new VirtualJoystick();
+    this.uiLayer.addChild(this.joystick);
+    this.joystickPointerId = null;
+
     this.container.eventMode = 'static';
     this.container.hitArea = { contains: () => true };
+    
+    this.container.on('pointerdown', (e) => {
+      if (this.joystickPointerId !== null || !this.player || this.player.isDead) return;
+      this.joystickPointerId = e.pointerId;
+      this.joystick.showAt(e.global.x, e.global.y);
+    });
+
     this.container.on('pointermove', (e) => {
-      if (this.player && !this.player.isDead) {
+      if (!this.player || this.player.isDead) return;
+      
+      if (this.joystickPointerId === e.pointerId) {
+        this.joystick.updateKnob(e.global.x, e.global.y);
+      } else if (this.joystickPointerId === null && e.pointerType === 'mouse') {
         const localPos = this.camera.toLocal(e.global);
         this.player.setTarget(localPos.x, localPos.y);
       }
     });
+
+    const pointerUp = (e) => {
+      if (this.joystickPointerId === e.pointerId) {
+        this.joystickPointerId = null;
+        this.joystick.hide();
+        if (this.player && !this.player.isDead) {
+          this.player.setTarget(this.player.x, this.player.y);
+        }
+      }
+    };
+    this.container.on('pointerup', pointerUp);
+    this.container.on('pointerupoutside', pointerUp);
 
     this.enemyNames = ["Tom", "Jerry", "Mickey", "Donald", "Goofy", "Pluto", "Simba", "Nala", "Timon", "Pumbaa"];
 
@@ -67,23 +95,19 @@ export class GameScene {
     
     // Nền mờ cho BXH
     const bg = new Graphics();
-    bg.roundRect(0, 0, 240, 160, 15).fill({ color: 0x000000, alpha: 0.5 });
+    bg.roundRect(0, 0, 240, 160, 15).fill({ color: 0x000000, alpha: 0 }); // alpha 0 = trong suốt
     this.leaderboardContainer.addChild(bg);
-    
-    // Tiêu đề
-    const titleStyle = new TextStyle({ fontFamily: 'Arial', fontSize: 20, fill: '#FFD700', fontWeight: 'bold' });
-    const title = new Text({ text: 'BẢNG XẾP HẠNG', style: titleStyle });
-    title.x = 120;
-    title.y = 10;
-    title.anchor.set(0.5, 0);
-    this.leaderboardContainer.addChild(title);
     
     // 4 dòng text (Top 1, 2, 3 và Bản thân)
     this.lbTexts = [];
     for(let i = 0; i < 4; i++) {
-        const text = new Text({ text: '', style: new TextStyle({ fontFamily: 'Arial', fontSize: 18, fill: '#FFFFFF', fontWeight: 'bold' }) });
+        const textStyle = new TextStyle({ 
+          fontFamily: 'Arial', fontSize: 18, fill: '#FFFFFF', fontWeight: 'bold',
+          stroke: { color: '#000000', width: 3, join: 'round' }
+        });
+        const text = new Text({ text: '', style: textStyle });
         text.x = 15;
-        text.y = 45 + i * 25;
+        text.y = 10 + i * 25;
         this.leaderboardContainer.addChild(text);
         this.lbTexts.push(text);
     }
@@ -93,7 +117,7 @@ export class GameScene {
 
   drawGrid() {
     this.gridGraphics.clear();
-    this.gridGraphics.rect(0, 0, this.worldWidth, this.worldHeight).fill('#81C784');
+    this.gridGraphics.rect(-800, -800, this.worldWidth + 1600, this.worldHeight + 1600).fill('#81C784');
 
     this.gridGraphics.setStrokeStyle({ width: 2, color: '#AED581', alpha: 0.5 });
     for (let i = 0; i <= this.worldWidth; i += 100) {
@@ -161,8 +185,9 @@ export class GameScene {
       bgSprite.y = -400;
       // Thu nhỏ tile để các bụi cỏ/hoa trông tự nhiên và chi tiết hơn
       bgSprite.tileScale.set(0.6); 
-      this.bgLayer.addChildAt(bgSprite, 0);
-      this.gridGraphics.visible = false;
+      bgSprite.alpha = 0.35; // Làm mờ hình nền để nổi bật các object
+      this.bgLayer.addChildAt(bgSprite, 1);
+      // this.gridGraphics.visible = false; // Bỏ ẩn lưới để hiển thị nền xanh bên dưới
       this.drawForestBorders();
     }).catch(() => {
       console.log("Chưa có bg_game.png, tiếp tục dùng lưới mặc định");
@@ -906,6 +931,12 @@ export class GameScene {
       return;
     }
 
+    if (this.joystick && this.joystick.visible && (this.joystick.vector.x !== 0 || this.joystick.vector.y !== 0)) {
+      const moveDx = this.joystick.vector.x * 1000;
+      const moveDy = this.joystick.vector.y * 1000;
+      this.player.setTarget(this.player.x + moveDx, this.player.y + moveDy);
+    }
+
     this.player.update(this.worldWidth, this.worldHeight);
 
     this._updateParticles();
@@ -1216,7 +1247,7 @@ for (let i = 0; i < this.enemies.length; i++) {
         e1.health = 100;
         
         if (this.isInViewport(e2Cx, e2Cy)) {
-          this.createKillEffect(e2Cx, e2Cy, victimRef, scoreGained, e1Cx, e1Cy);
+          this.createEnemyKillEffect(e2Cx, e2Cy, victimRef, e1Cx, e1Cy);
         }
         this.playSoundAt('hit', e2Cx, e2Cy);
         e2.container.destroy();
@@ -1235,7 +1266,7 @@ for (let i = 0; i < this.enemies.length; i++) {
         e2.health = 100;
 
         if (this.isInViewport(e1Cx, e1Cy)) {
-          this.createKillEffect(e1Cx, e1Cy, victimRef, scoreGained, e2Cx, e2Cy);
+          this.createEnemyKillEffect(e1Cx, e1Cy, victimRef, e2Cx, e2Cy);
         }
         this.playSoundAt('hit', e1Cx, e1Cy);
         e1.container.destroy();
@@ -1262,12 +1293,13 @@ if (this.enemies.length < 10) {
   } // <-- End of checkCollisions()
 
 
-onResize(w, h) {
-  const scale = Math.min(w / 800, h / 600, 1.2);
+  onResize(w, h) {
+    const scale = Math.min(w / 800, h / 600, 1.2);
 
-  // Thu nhỏ camera để bao quát xung quanh (tối thiểu 0.45)
-  this.baseCameraScale = Math.min(w, h) / 900;
-  this.baseCameraScale = Math.max(0.45, Math.min(this.baseCameraScale, 1.2));
+    // Thu nhỏ camera để bao quát xung quanh (tối thiểu 0.55)
+    // Cân bằng giữa việc nhìn rõ đồ ăn và bao quát được xung quanh
+    this.baseCameraScale = Math.min(w, h) / 700;
+    this.baseCameraScale = Math.max(0.55, Math.min(this.baseCameraScale, 1.2));
 
   if (this.settingsBtn) {
     const uiScale = Math.max(0.6, scale);
@@ -1279,8 +1311,8 @@ onResize(w, h) {
   if (this.leaderboardContainer) {
     const uiScale = Math.max(0.6, scale);
     this.leaderboardContainer.scale.set(uiScale);
-    this.leaderboardContainer.x = w - (240 * uiScale) - 10; 
-    this.leaderboardContainer.y = (this.settingsBtn ? this.settingsBtn.y + (40 * uiScale) + 10 : 80 * uiScale);
+    this.leaderboardContainer.x = 10; 
+    this.leaderboardContainer.y = 10;
   }
 }
 
