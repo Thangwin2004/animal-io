@@ -26,7 +26,8 @@ export class GameApp {
       backgroundColor: 0x1a1a1a, // Dark
       resolution: Math.min(window.devicePixelRatio || 1, 2), // Tăng độ phân giải lên tối đa 2x để tránh mờ trên mobile
       autoDensity: true,
-      antialias: true // Bật khử răng cưa để hình ảnh và chữ mượt mà hơn
+      antialias: false, // Tắt khử răng cưa để tăng hiệu năng tối đa trên điện thoại yếu
+      powerPreference: 'high-performance' // Ưu tiên sử dụng GPU mạnh nhất
     });
     container.appendChild(this.app.canvas);
 

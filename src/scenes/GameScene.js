@@ -985,13 +985,23 @@ export class GameScene {
     for (const enemy of this.enemies) {
       if (enemy.isDead) continue;
       enemy.update(this.worldWidth, this.worldHeight);
+      
+      // Culling: Ẩn kẻ thù nếu nằm ngoài màn hình để tiết kiệm tài nguyên
+      enemy.container.visible = this.isInViewport(enemy.x, enemy.y);
     }
 
     this.checkCollisions();
 
 
 
-    const activeFoods = this.foods.filter(f => !f.isDead).length;
+    let activeFoods = 0;
+    for (const food of this.foods) {
+      if (food.isDead) continue;
+      activeFoods++;
+      // Culling: Ẩn thức ăn nếu nằm ngoài màn hình
+      food.sprite.visible = this.isInViewport(food.x, food.y);
+    }
+    
     if (activeFoods < 150) {
       this.spawnFood();
     }

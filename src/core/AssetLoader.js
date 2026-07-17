@@ -7,30 +7,33 @@ export class AssetLoader {
   }
 
   async load(onProgress) {
-    // Tải UI
-    this.ui.playBtn = await Assets.load('/assest/iconbtn/continue_btn.png');
-    this.ui.leaderboardBtn = await Assets.load('/assest/iconbtn/trophy_btn.png');
-    this.ui.replayBtn = await Assets.load('/assest/iconbtn/replay_btn.png');
-    this.ui.homeBtn = await Assets.load('/assest/iconbtn/Home_btn.png');
-    this.ui.rewardBtn = await Assets.load('/assest/iconbtn/x2_btn.png');
-    this.ui.settingBtn = await Assets.load('/assest/iconbtn/setting_btn.png');
-    this.ui.closeBtn = await Assets.load('/assest/iconbtn/close_btn.png');
-    this.ui.backBtn = await Assets.load('/assest/iconbtn/back_btn.png');
-    this.ui.tuanNhun = await Assets.load('/assest/item/TuanNhun.png');
-    this.ui.menuBg = await Assets.load('/assest/image/menu_bg.png');
-    if (onProgress) onProgress(0.2);
+    // 1. Tải UI song song
+    const uiItems = [
+      { key: 'playBtn', url: '/assest/iconbtn/continue_btn.png' },
+      { key: 'leaderboardBtn', url: '/assest/iconbtn/trophy_btn.png' },
+      { key: 'replayBtn', url: '/assest/iconbtn/replay_btn.png' },
+      { key: 'homeBtn', url: '/assest/iconbtn/Home_btn.png' },
+      { key: 'rewardBtn', url: '/assest/iconbtn/x2_btn.png' },
+      { key: 'settingBtn', url: '/assest/iconbtn/setting_btn.png' },
+      { key: 'closeBtn', url: '/assest/iconbtn/close_btn.png' },
+      { key: 'backBtn', url: '/assest/iconbtn/back_btn.png' },
+      { key: 'tuanNhun', url: '/assest/item/TuanNhun.png' },
+      { key: 'menuBg', url: '/assest/image/menu_bg.png' }
+    ];
 
-    // Tải items (Thức ăn)
-    this.items = [];
+    await Promise.all(uiItems.map(async (item) => {
+      this.ui[item.key] = await Assets.load(item.url);
+    }));
+    if (onProgress) onProgress(0.1);
+
+    // 2. Tải items (Thức ăn) song song
     const itemNames = [
       'BanhChungBanhTet (1).png', 'banhmi.png', 'BimBim_02.png', 'Lycaphe.png', 'reddrink.png'
     ];
-    for (const name of itemNames) {
-      const tex = await Assets.load(`/assest/item/${name}`);
-      this.items.push(tex);
-    }
+    this.items = await Promise.all(itemNames.map(name => Assets.load(`/assest/item/${name}`)));
+    if (onProgress) onProgress(0.2);
 
-    // Tải avatars (44 nhân vật)
+    // 3. Tải avatars (44 nhân vật) song song
     const avatarNames = [
       '001_avatar_laclac.png', '002_avatar_cat_lick1.png', '003_avatar_duck.png',
       '004_avatar_turtle.png', '005_avatar_long.png', '006_avatar_horse.png',
@@ -50,13 +53,15 @@ export class AssetLoader {
     ];
 
     let loaded = 0;
-    for (const name of avatarNames) {
+    const avatarPromises = avatarNames.map(async (name) => {
       const tex = await Assets.load(`/assest/image/imagenobackgrd/${name}`);
-      // Lấy tên nhân vật từ tên file (vd: '001_avatar_laclac.png' -> 'laclac')
+      // Lấy tên nhân vật từ tên file
       tex.characterName = name.replace('.png', '').replace(/^\d+_avatar_/, '');
-      this.avatars.push(tex);
       loaded++;
       if (onProgress) onProgress(0.2 + (loaded / avatarNames.length) * 0.8);
-    }
+      return tex;
+    });
+
+    this.avatars = await Promise.all(avatarPromises);
   }
 }
