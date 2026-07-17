@@ -208,11 +208,11 @@ export class GameOverScene {
     const btnY = w > h ? h * 0.8 : h * 0.75;
 
     this.replayBtn.scale.set(scale);
-    this.replayBtn.x = w / 2 - 70 * scale;
+    this.replayBtn.x = w / 2 - 100 * scale;
     this.replayBtn.y = btnY;
     
     this.homeBtn.scale.set(scale);
-    this.homeBtn.x = w / 2 + 70 * scale;
+    this.homeBtn.x = w / 2 + 100 * scale;
     this.homeBtn.y = btnY;
   }
 }

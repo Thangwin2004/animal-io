@@ -47,24 +47,17 @@ export class Button extends Container {
     this.eventMode = "static";
     this.cursor = "pointer";
 
-    this.on("pointerover", () => {
-      this.scale.set(1.05);
-    });
-    this.on("pointerout", () => {
-      this.scale.set(1);
-      this.content.y = 0;
-    });
     this.on("pointerdown", () => {
-      this.scale.set(0.95);
+      this.content.scale.set(0.95);
       this.content.y = currentR * 0.15;
     });
     this.on("pointerup", () => {
-      this.scale.set(1);
+      this.content.scale.set(1);
       this.content.y = 0;
       if (this.onClick) this.onClick();
     });
     this.on("pointerupoutside", () => {
-      this.scale.set(1);
+      this.content.scale.set(1);
       this.content.y = 0;
     });
   }
@@ -144,11 +137,9 @@ export class IconBtn extends Container {
     this.eventMode = 'static';
     this.cursor = 'pointer';
 
-    this.on('pointerover', () => { this.scale.set(1.05); });
-    this.on('pointerout', () => { this.scale.set(1); this.content.y = 0; });
-    this.on('pointerdown', () => { this.scale.set(0.95); this.content.y = currentR * 0.1; });
-    this.on('pointerup', () => { this.scale.set(1); this.content.y = 0; if (this.onClick) this.onClick(); });
-    this.on('pointerupoutside', () => { this.scale.set(1); this.content.y = 0; });
+    this.on('pointerdown', () => { this.content.scale.set(0.95); this.content.y = currentR * 0.1; });
+    this.on('pointerup', () => { this.content.scale.set(1); this.content.y = 0; if (this.onClick) this.onClick(); });
+    this.on('pointerupoutside', () => { this.content.scale.set(1); this.content.y = 0; });
   }
 
   setTexture(texture, radius) {

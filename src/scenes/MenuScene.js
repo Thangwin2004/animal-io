@@ -185,11 +185,11 @@ export class MenuScene {
 
     // 2 Nút Icon ở dưới nút Play (nới khoảng cách ra để không bị đè do nút to lên)
     this.settingsBtn.scale.set(scale);
-    this.settingsBtn.x = w / 2 + 80 * scale;
-    this.settingsBtn.y = h * 0.85;
+    this.settingsBtn.x = w / 2 + 110 * scale;
+    this.settingsBtn.y = this.playBtn.y + 110 * scale;
 
     this.leaderboardBtn.scale.set(scale);
-    this.leaderboardBtn.x = w / 2 - 80 * scale;
-    this.leaderboardBtn.y = h * 0.85;
+    this.leaderboardBtn.x = w / 2 - 110 * scale;
+    this.leaderboardBtn.y = this.playBtn.y + 110 * scale;
   }
 }
