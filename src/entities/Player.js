@@ -35,10 +35,12 @@ export class Player {
     this.riderContainer.addChild(this.sprite);
 
     // Mask cong ở phía dưới để cắt bớt chân/phần dưới phẳng của ảnh, tạo cảm giác lún (ngồi)
-    const riderMask = new Graphics();
-    riderMask.roundRect(-40, -60, 80, 80, 20).fill(0xffffff); // Viền dưới bo tròn tại y = 20
-    this.riderContainer.addChild(riderMask);
-    this.riderContainer.mask = riderMask;
+    if (mountTexture) {
+      const riderMask = new Graphics();
+      riderMask.roundRect(-40, -60, 80, 80, 20).fill(0xffffff); // Viền dưới bo tròn tại y = 20
+      this.riderContainer.addChild(riderMask);
+      this.riderContainer.mask = riderMask;
+    }
 
     this.bodyContainer.addChild(this.riderContainer);
     
@@ -55,7 +57,7 @@ export class Player {
 
     this.score = 0;
     this.radius = 40;
-    this.baseSpeed = 5;
+    this.baseSpeed = 3.5; // Đã giảm tốc độ chạy
     this.speed = this.baseSpeed;
     
     this.scoreFloat = 0;
@@ -133,8 +135,8 @@ export class Player {
     if (isMoving) {
       this.bodyContainer.y = -Math.abs(Math.sin(bouncePhase)) * 8 * this.sizeScale;
       this.bodyContainer.scale.y = (1 - Math.abs(Math.sin(bouncePhase)) * 0.05) * this.sizeScale;
-      // Hiệu ứng người cưỡi lắc lư và nhún nảy theo
-      this.riderContainer.rotation = Math.sin(bouncePhase * 0.5) * 0.1;
+      // Hiệu ứng người cưỡi lắc lư và nhún nảy theo (đã giảm biên độ ngang)
+      this.riderContainer.rotation = Math.sin(bouncePhase * 0.5) * 0.04;
       this.riderContainer.y = -70 - Math.abs(Math.cos(bouncePhase)) * 3;
     } else {
       this.bodyContainer.y = 0;
@@ -149,13 +151,13 @@ export class Player {
     
     if (isMoving) {
         const heightFactor = Math.abs(Math.sin(bouncePhase)); 
-        stretchX = 1.08 - (0.15 * heightFactor); // Chạm đất béo ra, trên không gầy lại
-        stretchY = 0.92 + (0.15 * heightFactor); // Chạm đất lùn đi, trên không cao lên
+        stretchX = 1.04 - (0.08 * heightFactor); // Chạm đất béo ra, trên không gầy lại (giảm biên độ)
+        stretchY = 0.96 + (0.08 * heightFactor); // Chạm đất lùn đi, trên không cao lên (giảm biên độ)
     }
 
     // Nghiêng người khi di chuyển
     if (isMoving) {
-        this.bodyContainer.rotation = (dx / (Math.abs(dx) || 1)) * 0.1;
+        this.bodyContainer.rotation = (dx / (Math.abs(dx) || 1)) * 0.05;
     } else {
         this.bodyContainer.rotation = 0;
     }

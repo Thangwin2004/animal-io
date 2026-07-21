@@ -101,16 +101,18 @@ export class GameScene {
     });
 
     const pointerUp = (e) => {
-      if (this.joystickPointerId === e.pointerId) {
-        this.joystickPointerId = null;
-        this.joystick.hide();
-        if (this.player && !this.player.isDead) {
-          this.player.setTarget(this.player.x, this.player.y);
-        }
+      // Trong chế độ giả lập mobile của Chrome (F12), chuột phải hoặc chạm nhiều ngón có thể tạo ra
+      // các pointerId rác không khớp với joystickPointerId, gây kẹt.
+      // Giải pháp: Cứ nhả chuột/nhả tay (bất kỳ ngón nào) thì reset luôn joystick.
+      this.joystickPointerId = null;
+      this.joystick.hide();
+      if (this.player && !this.player.isDead) {
+        this.player.setTarget(this.player.x, this.player.y);
       }
     };
     this.container.on('pointerup', pointerUp);
     this.container.on('pointerupoutside', pointerUp);
+    this.container.on('pointercancel', pointerUp); // Chống kẹt khi chuột phải / mất focus
 
     this.enemyNames = ["Tom", "Jerry", "Mickey", "Donald", "Goofy", "Pluto", "Simba", "Nala", "Timon", "Pumbaa"];
 
@@ -202,6 +204,11 @@ export class GameScene {
     window.addEventListener('keydown', this._onKeyDown);
     window.addEventListener('keyup', this._onKeyUp);
     
+    // Chặn menu chuột phải để không gây lỗi kẹt joystick khi click chuột phải
+    if (this.game.app.canvas) {
+        this.game.app.canvas.addEventListener('contextmenu', e => e.preventDefault());
+    }
+
     this.game.audioManager.playBGM('/assest/music/BGIG_Disco1.mp3');
 
     this.drawGrid();
@@ -244,11 +251,9 @@ export class GameScene {
       this.spawnEnemy();
     }
 
-    const randomAvatar = this.game.assetLoader.avatars[Math.floor(Math.random() * this.game.assetLoader.avatars.length)];
-    const mountTex = this.game.assetLoader.ui.tuanNhun;
-
+    const testPlayerTex = this.game.assetLoader.ui.testPlayer || this.game.assetLoader.avatars[0];
     const safePos = this.getSafePosition();
-    this.player = new Player(safePos.x, safePos.y, randomAvatar, mountTex);
+    this.player = new Player(safePos.x, safePos.y, testPlayerTex, null);
     if (data && data.continue && data.score) {
       this.player.addScore(data.score);
     }
@@ -538,11 +543,13 @@ export class GameScene {
 
     const playerGhost = new Container();
     
-    const mountGhost = new Sprite(this.player.mountSprite.texture);
-    mountGhost.anchor.set(0.5, 1.0);
-    // Dời trọng tâm của container vào thân nhân vật (ở khoảng giữa)
-    mountGhost.y = 80;
-    playerGhost.addChild(mountGhost);
+    if (this.player.mountSprite && this.player.mountSprite.texture) {
+      const mountGhost = new Sprite(this.player.mountSprite.texture);
+      mountGhost.anchor.set(0.5, 1.0);
+      // Dời trọng tâm của container vào thân nhân vật (ở khoảng giữa)
+      mountGhost.y = 80;
+      playerGhost.addChild(mountGhost);
+    }
     
     const riderGhost = new Sprite(this.player.sprite.texture);
     riderGhost.anchor.set(0.5, 0.5);
@@ -572,8 +579,11 @@ export class GameScene {
     playerGhost._targetX = targetX;
     playerGhost._targetY = targetY;
     playerGhost._startScale = vs;
-    // Cố định kích thước khi đập vào màn hình để không bị quá to nếu nhân vật đang khổng lồ
-    playerGhost._targetScale = 12;
+    
+    // Tính toán targetScale linh động theo kích thước màn hình để không bị tràn trên điện thoại
+    const minScreenDim = Math.min(this.game.app.screen.width, this.game.app.screen.height);
+    playerGhost._targetScale = (minScreenDim * 0.7) / 70; // Cố định kích thước bằng khoảng 70% chiều nhỏ nhất của màn hình
+    
     // Không cho xoay vòng vòng nữa, chỉ đặt góc ngẫu nhiên ban đầu để giống bị ném thẳng vào tường
     playerGhost.rotation = (Math.random() - 0.5) * 0.3;
     
@@ -642,11 +652,13 @@ export class GameScene {
     this.particles.push(rayContainer);
 
     // 3. Nhân vật trung tâm
-    
-    const mountGhost = new Sprite(this.player.mountSprite.texture);
-    mountGhost.anchor.set(0.5, 1.0);
-    mountGhost.y = 80;
-    playerGhost.addChild(mountGhost);
+    const playerGhost = new Container();
+    if (this.player.mountSprite && this.player.mountSprite.texture) {
+      const mountGhost = new Sprite(this.player.mountSprite.texture);
+      mountGhost.anchor.set(0.5, 1.0);
+      mountGhost.y = 80;
+      playerGhost.addChild(mountGhost);
+    }
     
     const riderGhost = new Sprite(this.player.sprite.texture);
     riderGhost.anchor.set(0.5, 0.5);
@@ -673,7 +685,10 @@ export class GameScene {
     playerGhost._targetX = targetX;
     playerGhost._targetY = targetY;
     playerGhost._startScale = vs;
-    playerGhost._targetScale = 6; 
+    
+    // Đồng bộ với mọi kích thước màn hình, chiến thắng thì to hơn một chút (~80%)
+    const minScreenDim = Math.min(this.game.app.screen.width, this.game.app.screen.height);
+    playerGhost._targetScale = (minScreenDim * 0.8) / 70; 
     
     this.uiLayer.addChild(playerGhost);
     this.particles.push(playerGhost);
@@ -887,10 +902,10 @@ export class GameScene {
           // Bay từ từ về phía miệng để người chơi kịp nhìn thấy
           const tx = target.x;
           const ty = target.y - 40 * (target.sizeScale || 1);
-          p.x += (tx - p.x) * 0.15;
-          p.y += (ty - p.y) * 0.15;
+          p.x += (tx - p.x) * 0.06;
+          p.y += (ty - p.y) * 0.06;
           
-          // Thu nhỏ từ từ
+          // Thu nhỏ từ từ theo nhịp bay
           p.scale.x *= 0.92;
           p.scale.y *= 0.92;
           
@@ -1120,7 +1135,7 @@ export class GameScene {
          this.entityLayer.removeChild(food.sprite);
          this.vfxLayer.addChild(food.sprite);
          food.sprite.life = 1.0;
-         food.sprite.decay = 0.05; // Chậm hơn để thấy rõ bay vào mồm
+         food.sprite.decay = 0.03; // Giảm decay để sống lâu hơn, bay từ từ vào mồm
          food.sprite._targetEat = this.player;
          this.particles.push(food.sprite);
 
@@ -1147,7 +1162,7 @@ export class GameScene {
            this.entityLayer.removeChild(food.sprite);
            this.vfxLayer.addChild(food.sprite);
            food.sprite.life = 1.0;
-           food.sprite.decay = 0.05; // Chậm hơn để bay tới miệng
+           food.sprite.decay = 0.03; // Giảm decay cho địch giống player
            food.sprite._targetEat = enemy;
            this.particles.push(food.sprite);
            

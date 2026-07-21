@@ -18,7 +18,8 @@ export class AssetLoader {
       { key: 'closeBtn', url: '/assest/iconbtn/close_btn.png' },
       { key: 'backBtn', url: '/assest/iconbtn/back_btn.png' },
       { key: 'tuanNhun', url: '/assest/item/TuanNhun.png' },
-      { key: 'menuBg', url: '/assest/image/menu_bg.png' }
+      { key: 'menuBg', url: '/assest/image/menu_bg.png' },
+      { key: 'testPlayer', url: '/assest/image/test_player.png' }
     ];
 
     await Promise.all(uiItems.map(async (item) => {
