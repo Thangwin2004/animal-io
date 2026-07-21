@@ -119,10 +119,10 @@ export class Enemy {
     const bouncePhase = Date.now() * 0.008;
     
     if (isMoving) {
-      this.bodyContainer.y = -Math.abs(Math.sin(bouncePhase)) * 15 * this.sizeScale;
-      this.bodyContainer.scale.y = (1 - Math.abs(Math.sin(bouncePhase)) * 0.1) * this.sizeScale;
-      this.riderContainer.rotation = Math.sin(bouncePhase * 0.5) * 0.15;
-      this.riderContainer.y = -70 - Math.abs(Math.cos(bouncePhase)) * 5;
+      this.bodyContainer.y = -Math.abs(Math.sin(bouncePhase)) * 8 * this.sizeScale;
+      this.bodyContainer.scale.y = (1 - Math.abs(Math.sin(bouncePhase)) * 0.05) * this.sizeScale;
+      this.riderContainer.rotation = Math.sin(bouncePhase * 0.5) * 0.1;
+      this.riderContainer.y = -70 - Math.abs(Math.cos(bouncePhase)) * 3;
     } else {
       this.bodyContainer.y = 0;
       this.bodyContainer.scale.y = this.sizeScale;
@@ -136,8 +136,8 @@ export class Enemy {
     
     if (isMoving) {
         const heightFactor = Math.abs(Math.sin(bouncePhase)); 
-        stretchX = 1.15 - (0.25 * heightFactor); // Chạm đất béo ra, trên không gầy lại
-        stretchY = 0.85 + (0.25 * heightFactor); // Chạm đất lùn đi, trên không cao lên
+        stretchX = 1.08 - (0.15 * heightFactor); // Chạm đất béo ra, trên không gầy lại
+        stretchY = 0.92 + (0.15 * heightFactor); // Chạm đất lùn đi, trên không cao lên
     }
 
     // Nghiêng người khi di chuyển

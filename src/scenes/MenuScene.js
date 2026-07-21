@@ -75,7 +75,7 @@ export class MenuScene {
     this.playBtn = new Button("CHƠI NGAY", () => {
       this.game.audioManager.playSFX('click');
       this.game.switchScene('Game');
-    }, 32); 
+    }, 32, 260); // 260 is fixed width so it doesn't break when font loads async
     this.container.addChild(this.playBtn);
 
     // Nút Cài đặt (Icon Button)

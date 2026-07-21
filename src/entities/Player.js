@@ -57,6 +57,8 @@ export class Player {
     this.radius = 40;
     this.baseSpeed = 5;
     this.speed = this.baseSpeed;
+    
+    this.scoreFloat = 0;
   }
 
   addScore(points) {
@@ -83,14 +85,27 @@ export class Player {
     this.targetY = y;
   }
 
-  update(worldWidth = 4000, worldHeight = 4000) {
+  update(worldWidth = 4000, worldHeight = 4000, isBoosting = false) {
+    let currentSpeed = this.speed;
+    if (isBoosting && this.score > 20) {
+        currentSpeed *= 1.8;
+        this.scoreFloat -= 0.15; // Mất 0.15 điểm mỗi frame (khoảng 9 điểm/s)
+        if (this.scoreFloat <= -1) {
+            this.addScore(-1);
+            this.scoreFloat += 1;
+        }
+    }
+    
     const dx = this.targetX - this.x;
     const dy = this.targetY - this.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    if (dist > this.speed) {
-      this.x += (dx / dist) * this.speed;
-      this.y += (dy / dist) * this.speed;
+    if (dist > currentSpeed) {
+      this.x += (dx / dist) * currentSpeed;
+      this.y += (dy / dist) * currentSpeed;
+    } else {
+      this.x = this.targetX;
+      this.y = this.targetY;
     }
 
     // Giới hạn nhân vật không được đi ra khỏi bản đồ
@@ -116,11 +131,11 @@ export class Player {
     const bouncePhase = Date.now() * 0.008;
     
     if (isMoving) {
-      this.bodyContainer.y = -Math.abs(Math.sin(bouncePhase)) * 15 * this.sizeScale;
-      this.bodyContainer.scale.y = (1 - Math.abs(Math.sin(bouncePhase)) * 0.1) * this.sizeScale;
+      this.bodyContainer.y = -Math.abs(Math.sin(bouncePhase)) * 8 * this.sizeScale;
+      this.bodyContainer.scale.y = (1 - Math.abs(Math.sin(bouncePhase)) * 0.05) * this.sizeScale;
       // Hiệu ứng người cưỡi lắc lư và nhún nảy theo
-      this.riderContainer.rotation = Math.sin(bouncePhase * 0.5) * 0.15;
-      this.riderContainer.y = -70 - Math.abs(Math.cos(bouncePhase)) * 5;
+      this.riderContainer.rotation = Math.sin(bouncePhase * 0.5) * 0.1;
+      this.riderContainer.y = -70 - Math.abs(Math.cos(bouncePhase)) * 3;
     } else {
       this.bodyContainer.y = 0;
       this.bodyContainer.scale.y = this.sizeScale;
@@ -134,8 +149,8 @@ export class Player {
     
     if (isMoving) {
         const heightFactor = Math.abs(Math.sin(bouncePhase)); 
-        stretchX = 1.15 - (0.25 * heightFactor); // Chạm đất béo ra, trên không gầy lại
-        stretchY = 0.85 + (0.25 * heightFactor); // Chạm đất lùn đi, trên không cao lên
+        stretchX = 1.08 - (0.15 * heightFactor); // Chạm đất béo ra, trên không gầy lại
+        stretchY = 0.92 + (0.15 * heightFactor); // Chạm đất lùn đi, trên không cao lên
     }
 
     // Nghiêng người khi di chuyển

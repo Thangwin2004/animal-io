@@ -52,6 +52,9 @@ export class GameApp {
   switchScene(sceneName, data = null) {
     if (this.currentScene) {
       this.app.stage.removeChild(this.currentScene.container);
+      if (typeof this.currentScene.onExit === 'function') {
+        this.currentScene.onExit();
+      }
     }
     const nextScene = this.scenes[sceneName];
     if (nextScene) {

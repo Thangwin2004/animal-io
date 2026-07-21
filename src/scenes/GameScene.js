@@ -25,8 +25,7 @@ export class GameScene {
     this.drawGrid();
 
     this.entityLayer = new Container();
-    this.foodLayer = new Container();
-    this.camera.addChild(this.foodLayer);
+    this.entityLayer.sortableChildren = true;
     this.camera.addChild(this.entityLayer);
 
     this.vfxLayer = new Container();
@@ -43,6 +42,34 @@ export class GameScene {
       }, true);
     }, 25, '', 'blue');
     this.uiLayer.addChild(this.settingsBtn);
+    
+    this.isBoosting = false;
+    // Nút tăng tốc (bên phải dưới)
+    this.boostBtn = new IconBtn('lightning', null, 50, '', 'orange');
+    this.boostBtn.on('pointerdown', () => { this.isBoosting = true; });
+    this.boostBtn.on('pointerup', () => { this.isBoosting = false; });
+    this.boostBtn.on('pointerupoutside', () => { this.isBoosting = false; });
+    this.uiLayer.addChild(this.boostBtn);
+
+    this._onKeyDown = (e) => {
+      if (e.code === 'Space' && !e.repeat) {
+        this.isBoosting = true;
+        if (this.boostBtn && this.boostBtn.content) {
+          this.boostBtn.content.scale.set(0.95);
+          this.boostBtn.content.y = this.boostBtn.currentR * 0.1;
+        }
+      }
+    };
+    
+    this._onKeyUp = (e) => {
+      if (e.code === 'Space') {
+        this.isBoosting = false;
+        if (this.boostBtn && this.boostBtn.content) {
+          this.boostBtn.content.scale.set(1);
+          this.boostBtn.content.y = 0;
+        }
+      }
+    };
 
     this.player = null;
     this.enemies = [];
@@ -131,24 +158,28 @@ export class GameScene {
 
   drawForestBorders() {
     // Vẽ hàng rào cây thông (Pine Trees) viền xung quanh bản đồ
-    const forest = new Graphics();
-    
     const drawPineTree = (x, y, scale = 1) => {
+      const tree = new Graphics();
       // Bóng (Shadow)
-      forest.ellipse(x, y + 10 * scale, 30 * scale, 15 * scale).fill({ color: 0x000000, alpha: 0.3 });
+      tree.ellipse(0, 10 * scale, 30 * scale, 15 * scale).fill({ color: 0x000000, alpha: 0.3 });
       
       // Thân cây (Trunk)
-      forest.rect(x - 6 * scale, y - 10 * scale, 12 * scale, 20 * scale).fill('#5D4037');
+      tree.rect(-6 * scale, -10 * scale, 12 * scale, 20 * scale).fill('#5D4037');
       
       // Các tầng lá (Pine foliage) - từ dưới lên trên
-      forest.poly([x, y - 80 * scale, x + 40 * scale, y, x - 40 * scale, y]).fill('#1B5E20');
-      forest.poly([x, y - 110 * scale, x + 35 * scale, y - 30 * scale, x - 35 * scale, y - 30 * scale]).fill('#2E7D32');
-      forest.poly([x, y - 140 * scale, x + 30 * scale, y - 60 * scale, x - 30 * scale, y - 60 * scale]).fill('#388E3C');
+      tree.poly([0, -80 * scale, 40 * scale, 0, -40 * scale, 0]).fill('#1B5E20');
+      tree.poly([0, -110 * scale, 35 * scale, -30 * scale, -35 * scale, -30 * scale]).fill('#2E7D32');
+      tree.poly([0, -140 * scale, 30 * scale, -60 * scale, -30 * scale, -60 * scale]).fill('#388E3C');
       
-      // Highlight (Tạo độ phồng cho cây)
-      forest.poly([x, y - 140 * scale, x + 30 * scale, y - 60 * scale, x, y - 60 * scale]).fill({ color: 0xffffff, alpha: 0.1 });
-      forest.poly([x, y - 110 * scale, x + 35 * scale, y - 30 * scale, x, y - 30 * scale]).fill({ color: 0xffffff, alpha: 0.1 });
-      forest.poly([x, y - 80 * scale, x + 40 * scale, y, x, y]).fill({ color: 0xffffff, alpha: 0.1 });
+      // Highlight (Tạo độ phẳng cho cây)
+      tree.poly([0, -140 * scale, 30 * scale, -60 * scale, 0, -60 * scale]).fill({ color: 0xffffff, alpha: 0.1 });
+      tree.poly([0, -110 * scale, 35 * scale, -30 * scale, 0, -30 * scale]).fill({ color: 0xffffff, alpha: 0.1 });
+      tree.poly([0, -80 * scale, 40 * scale, 0, 0, 0]).fill({ color: 0xffffff, alpha: 0.1 });
+      
+      tree.x = x;
+      tree.y = y;
+      tree.zIndex = y + 10 * scale; // Adjust zIndex to match the visual base (shadow)
+      this.entityLayer.addChild(tree);
     };
 
     // Mật độ cây phụ thuộc vào kích thước bản đồ
@@ -165,11 +196,12 @@ export class GameScene {
       drawPineTree(Math.random() * 40 + 20, y + (Math.random() * 40 - 20), 1.5 + Math.random() * 0.5); // Cạnh trái
       drawPineTree(this.worldWidth - (Math.random() * 40 + 20), y + (Math.random() * 40 - 20), 1.5 + Math.random() * 0.5); // Cạnh phải
     }
-
-    this.bgLayer.addChild(forest);
   }
 
   onEnter(data) {
+    window.addEventListener('keydown', this._onKeyDown);
+    window.addEventListener('keyup', this._onKeyUp);
+    
     this.game.audioManager.playBGM('/assest/music/BGIG_Disco1.mp3');
 
     this.drawGrid();
@@ -267,7 +299,8 @@ export class GameScene {
     const tex = this.game.assetLoader.items[Math.floor(Math.random() * this.game.assetLoader.items.length)];
     const food = new Food(x, y, tex);
     this.foods.push(food);
-    this.foodLayer.addChild(food.sprite);
+    food.sprite.zIndex = food.y;
+    this.entityLayer.addChild(food.sprite);
   }
 
   // === VFX: Hạt nổ cơ bản ===
@@ -851,18 +884,18 @@ export class GameScene {
         if (target.isDead) {
           p.life = 0; // Xóa sổ
         } else {
-          // Bay nhanh về phía miệng
+          // Bay từ từ về phía miệng để người chơi kịp nhìn thấy
           const tx = target.x;
           const ty = target.y - 40 * (target.sizeScale || 1);
-          p.x += (tx - p.x) * 0.4;
-          p.y += (ty - p.y) * 0.4;
+          p.x += (tx - p.x) * 0.15;
+          p.y += (ty - p.y) * 0.15;
           
-          // Thu nhỏ cực lẹ
-          p.scale.x *= 0.8;
-          p.scale.y *= 0.8;
+          // Thu nhỏ từ từ
+          p.scale.x *= 0.92;
+          p.scale.y *= 0.92;
           
           p.life -= p.decay;
-          if (p.life <= 0 || p.scale.x < 0.1) {
+          if (p.life <= 0 || p.scale.x < 0.05) {
             this.vfxLayer.removeChild(p);
             p.destroy();
             this.particles.splice(i, 1);
@@ -937,7 +970,8 @@ export class GameScene {
       this.player.setTarget(this.player.x + moveDx, this.player.y + moveDy);
     }
 
-    this.player.update(this.worldWidth, this.worldHeight);
+    this.player.update(this.worldWidth, this.worldHeight, this.isBoosting);
+    this.player.container.zIndex = this.player.container.y;
 
     this._updateParticles();
 
@@ -985,6 +1019,7 @@ export class GameScene {
     for (const enemy of this.enemies) {
       if (enemy.isDead) continue;
       enemy.update(this.worldWidth, this.worldHeight);
+      enemy.container.zIndex = enemy.container.y;
       
       // Culling: Ẩn kẻ thù nếu nằm ngoài màn hình để tiết kiệm tài nguyên
       enemy.container.visible = this.isInViewport(enemy.x, enemy.y);
@@ -1082,10 +1117,10 @@ export class GameScene {
          food.isDead = true;
          
          // Chuyển sprite thành hạt bay vào mồm
-         this.foodLayer.removeChild(food.sprite);
+         this.entityLayer.removeChild(food.sprite);
          this.vfxLayer.addChild(food.sprite);
          food.sprite.life = 1.0;
-         food.sprite.decay = 0.15; // Mất khoảng 6-7 frame
+         food.sprite.decay = 0.05; // Chậm hơn để thấy rõ bay vào mồm
          food.sprite._targetEat = this.player;
          this.particles.push(food.sprite);
 
@@ -1107,8 +1142,15 @@ export class GameScene {
         
         if (edist < enemy.radius + food.radius) {
            food.isDead = true;
-           this.foodLayer.removeChild(food.sprite);
-           food.sprite.destroy();
+           
+           // Chuyển sprite thành hạt bay vào mồm kẻ địch
+           this.entityLayer.removeChild(food.sprite);
+           this.vfxLayer.addChild(food.sprite);
+           food.sprite.life = 1.0;
+           food.sprite.decay = 0.05; // Chậm hơn để bay tới miệng
+           food.sprite._targetEat = enemy;
+           this.particles.push(food.sprite);
+           
            enemy.addScore(1);
            this.playSoundAt('pop', food.x, food.y, 800);
            break;
@@ -1317,6 +1359,13 @@ if (this.enemies.length < 10) {
     this.settingsBtn.x = w - 40 * uiScale;
     this.settingsBtn.y = 40 * uiScale;
   }
+  
+  if (this.boostBtn) {
+    const uiScale = Math.max(0.6, scale);
+    this.boostBtn.scale.set(uiScale);
+    this.boostBtn.x = w - 75 * uiScale;
+    this.boostBtn.y = h - 75 * uiScale;
+  }
 
   if (this.leaderboardContainer) {
     const uiScale = Math.max(0.6, scale);
@@ -1379,6 +1428,11 @@ playSoundAt(type, x, y, maxDist = 1500) {
       this.game.audioManager.playSFX(type, volume);
     }
   }
+}
+
+onExit() {
+  window.removeEventListener('keydown', this._onKeyDown);
+  window.removeEventListener('keyup', this._onKeyUp);
 }
 }
 
