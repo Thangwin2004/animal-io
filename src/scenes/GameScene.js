@@ -101,9 +101,9 @@ export class GameScene {
     });
 
     const pointerUp = (e) => {
-      // Trong chế độ giả lập mobile của Chrome (F12), chuột phải hoặc chạm nhiều ngón có thể tạo ra
-      // các pointerId rác không khớp với joystickPointerId, gây kẹt.
-      // Giải pháp: Cứ nhả chuột/nhả tay (bất kỳ ngón nào) thì reset luôn joystick.
+      if (this.joystickPointerId !== null && e.pointerId !== this.joystickPointerId) {
+        return; // Bỏ qua nếu đây là ngón tay khác đang nhấc lên
+      }
       this.joystickPointerId = null;
       this.joystick.hide();
       if (this.player && !this.player.isDead) {
@@ -292,17 +292,18 @@ export class GameScene {
     this.entityLayer.addChild(enemy.container);
   }
 
-  spawnFood() {
-    // Chỉ spawn trong vùng an toàn mà nhân vật có thể đi tới (tránh việc đồ ăn dính trong hàng cây thông)
+  spawnFood(specificX, specificY) {
     const safeLeft = 80;
     const safeRight = this.worldWidth - 80;
     const safeTop = 100;
     const safeBottom = this.worldHeight - 100;
 
-    const x = safeLeft + Math.random() * (safeRight - safeLeft);
-    const y = safeTop + Math.random() * (safeBottom - safeTop);
+    const x = specificX !== undefined ? specificX : (safeLeft + Math.random() * (safeRight - safeLeft));
+    const y = specificY !== undefined ? specificY : (safeTop + Math.random() * (safeBottom - safeTop));
     const tex = this.game.assetLoader.items[Math.floor(Math.random() * this.game.assetLoader.items.length)];
-    const food = new Food(x, y, tex);
+    
+    const isGolden = specificX === undefined && Math.random() < 0.02;
+    const food = new Food(x, y, tex, isGolden);
     this.foods.push(food);
     food.sprite.zIndex = food.y;
     this.entityLayer.addChild(food.sprite);
@@ -1139,7 +1140,7 @@ export class GameScene {
          food.sprite._targetEat = this.player;
          this.particles.push(food.sprite);
 
-         this.player.addScore(1);
+         this.player.addScore(food.scoreValue);
          this.game.audioManager.playSFX('pop');
          continue;
       }
@@ -1166,7 +1167,7 @@ export class GameScene {
            food.sprite._targetEat = enemy;
            this.particles.push(food.sprite);
            
-           enemy.addScore(1);
+           enemy.addScore(food.scoreValue);
            this.playSoundAt('pop', food.x, food.y, 800);
            break;
         }
@@ -1187,10 +1188,66 @@ for (const enemy of this.enemies) {
   const dy = pCy - eCy;
   const dist = Math.sqrt(dx * dx + dy * dy);
 
-  // Hitbox chạm nhau
   if (dist < this.player.radius + enemy.radius) {
     // Yêu cầu: khoảng cách 50 điểm mới đá được nhau nếu từ 100 điểm trở lên (dưới 100 thì 10 điểm)
     const requiredGap = Math.max(this.player.score, enemy.score) >= 100 ? 50 : 10;
+
+    // --- LOGIC ĐÂM LÉN (BACKSTAB) ---
+    const eMoveAngle = Math.atan2(enemy.targetY - enemy.y, enemy.targetX - enemy.x);
+    const angleEtoP = Math.atan2(pCy - eCy, pCx - eCx);
+    let diffE = Math.abs(eMoveAngle - angleEtoP);
+    if (diffE > Math.PI) diffE = 2 * Math.PI - diffE;
+    const isPlayerBehindEnemy = diffE > Math.PI * 0.7;
+
+    let pMoveX = 0, pMoveY = 0;
+    if (this.joystick && this.joystick.visible && (this.joystick.vector.x !== 0 || this.joystick.vector.y !== 0)) {
+       pMoveX = this.joystick.vector.x;
+       pMoveY = this.joystick.vector.y;
+    } else {
+       pMoveX = this.player.targetX - this.player.x;
+       pMoveY = this.player.targetY - this.player.y;
+    }
+    const pMoveAngle = Math.atan2(pMoveY, pMoveX);
+    const anglePtoE = Math.atan2(eCy - pCy, eCx - pCx);
+    let diffP = Math.abs(pMoveAngle - anglePtoE);
+    if (diffP > Math.PI) diffP = 2 * Math.PI - diffP;
+    const isEnemyBehindPlayer = diffP > Math.PI * 0.7; 
+
+    if (this.player.isBoosting && this.player.score < enemy.score + requiredGap && isPlayerBehindEnemy) {
+        const penalty = Math.floor(Math.min(enemy.score * 0.1, 50));
+        if (penalty >= 5) {
+            enemy.addScore(-penalty);
+            for (let k = 0; k < Math.min(15, penalty); k++) {
+                const angle = Math.random() * Math.PI * 2;
+                const dropDist = 50 + Math.random() * 100;
+                this.spawnFood(eCx + Math.cos(angle) * dropDist, eCy + Math.sin(angle) * dropDist);
+            }
+            this.createExplosion(eCx, eCy, 15, 0xff0000, 1.0);
+            this.game.audioManager.playSFX('hit');
+            this.player.x -= Math.cos(anglePtoE) * 80;
+            this.player.y -= Math.sin(anglePtoE) * 80;
+            continue; 
+        }
+    }
+
+    if (enemy.isBoosting && enemy.score < this.player.score + requiredGap && isEnemyBehindPlayer) {
+        const penalty = Math.floor(Math.min(this.player.score * 0.1, 50));
+        if (penalty >= 5) {
+            this.player.addScore(-penalty);
+            for (let k = 0; k < Math.min(15, penalty); k++) {
+                const angle = Math.random() * Math.PI * 2;
+                const dropDist = 50 + Math.random() * 100;
+                this.spawnFood(pCx + Math.cos(angle) * dropDist, pCy + Math.sin(angle) * dropDist);
+            }
+            this.createExplosion(pCx, pCy, 15, 0xff0000, 1.0);
+            this.shakeCamera(10);
+            this.game.audioManager.playSFX('hit');
+            enemy.x -= Math.cos(angleEtoP) * 80;
+            enemy.y -= Math.sin(angleEtoP) * 80;
+            continue; 
+        }
+    }
+    // --- END ĐÂM LÉN ---
 
     if (this.player.score >= enemy.score + requiredGap && dist < this.player.radius) {
       const scoreGained = Math.floor(enemy.score / 2);
@@ -1298,6 +1355,54 @@ for (let i = 0; i < this.enemies.length; i++) {
 
     if (dist < e1.radius + e2.radius) {
       const requiredGap = Math.max(e1.score, e2.score) >= 100 ? 50 : 10;
+
+      // --- LOGIC ĐÂM LÉN (Enemy vs Enemy) ---
+      const e1MoveAngle = Math.atan2(e1.targetY - e1.y, e1.targetX - e1.x);
+      const angleE1toE2 = Math.atan2(e2Cy - e1Cy, e2Cx - e1Cx);
+      let diffE1 = Math.abs(e1MoveAngle - angleE1toE2);
+      if (diffE1 > Math.PI) diffE1 = 2 * Math.PI - diffE1;
+      const isE2BehindE1 = diffE1 > Math.PI * 0.7;
+
+      const e2MoveAngle = Math.atan2(e2.targetY - e2.y, e2.targetX - e2.x);
+      const angleE2toE1 = Math.atan2(e1Cy - e2Cy, e1Cx - e2Cx);
+      let diffE2 = Math.abs(e2MoveAngle - angleE2toE1);
+      if (diffE2 > Math.PI) diffE2 = 2 * Math.PI - diffE2;
+      const isE1BehindE2 = diffE2 > Math.PI * 0.7;
+
+      if (e1.isBoosting && e1.score < e2.score + requiredGap && isE1BehindE2) {
+          const penalty = Math.floor(Math.min(e2.score * 0.1, 50));
+          if (penalty >= 5) {
+              e2.addScore(-penalty);
+              for (let k = 0; k < Math.min(10, penalty); k++) {
+                  const angle = Math.random() * Math.PI * 2;
+                  const dropDist = 50 + Math.random() * 80;
+                  this.spawnFood(e2Cx + Math.cos(angle) * dropDist, e2Cy + Math.sin(angle) * dropDist);
+              }
+              this.createExplosion(e2Cx, e2Cy, 15, 0xff0000, 1.0);
+              if (this.isInViewport(e2Cx, e2Cy)) this.playSoundAt('hit', e2Cx, e2Cy);
+              e1.x -= Math.cos(angleE1toE2) * 80;
+              e1.y -= Math.sin(angleE1toE2) * 80;
+              continue;
+          }
+      }
+
+      if (e2.isBoosting && e2.score < e1.score + requiredGap && isE2BehindE1) {
+          const penalty = Math.floor(Math.min(e1.score * 0.1, 50));
+          if (penalty >= 5) {
+              e1.addScore(-penalty);
+              for (let k = 0; k < Math.min(10, penalty); k++) {
+                  const angle = Math.random() * Math.PI * 2;
+                  const dropDist = 50 + Math.random() * 80;
+                  this.spawnFood(e1Cx + Math.cos(angle) * dropDist, e1Cy + Math.sin(angle) * dropDist);
+              }
+              this.createExplosion(e1Cx, e1Cy, 15, 0xff0000, 1.0);
+              if (this.isInViewport(e1Cx, e1Cy)) this.playSoundAt('hit', e1Cx, e1Cy);
+              e2.x -= Math.cos(angleE2toE1) * 80;
+              e2.y -= Math.sin(angleE2toE1) * 80;
+              continue;
+          }
+      }
+      // --- END ĐÂM LÉN ---
 
       if (e1.score >= e2.score + requiredGap && dist < e1.radius) {
         const scoreGained = Math.floor(e2.score / 2);
