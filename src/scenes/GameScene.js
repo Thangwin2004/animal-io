@@ -117,6 +117,31 @@ export class GameScene {
     this.enemyNames = ["Tom", "Jerry", "Mickey", "Donald", "Goofy", "Pluto", "Simba", "Nala", "Timon", "Pumbaa"];
 
     this.createLeaderboard();
+    this._initVFXTextures();
+  }
+
+  _initVFXTextures() {
+    // Circle cho vụ nổ
+    const circle = new Graphics();
+    circle.circle(0, 0, 10).fill(0xFFFFFF); 
+    this.texCircle = this.game.app.renderer.generateTexture(circle);
+
+    // Mây cho poof
+    const cloud = new Graphics();
+    cloud.circle(0, 0, 15).fill('#ffffff');
+    cloud.circle(10, 5, 10).fill('#ffffff');
+    cloud.circle(-10, 5, 12).fill('#ffffff');
+    this.texCloud = this.game.app.renderer.generateTexture(cloud);
+
+    // Mảnh nứt nhỏ
+    const frag = new Graphics();
+    frag.circle(0, 0, 10).fill(0xFFFFFF);
+    this.texFrag = this.game.app.renderer.generateTexture(frag);
+    
+    // Confetti
+    const conf = new Graphics();
+    conf.rect(-8, -4, 16, 8).fill(0xFFFFFF);
+    this.texConfetti = this.game.app.renderer.generateTexture(conf);
   }
 
   createLeaderboard() {
@@ -159,28 +184,28 @@ export class GameScene {
   }
 
   drawForestBorders() {
-    // Vẽ hàng rào cây thông (Pine Trees) viền xung quanh bản đồ
+    // 1. Tạo 1 Graphics cây thông gốc (scale = 1)
+    const treeGraphics = new Graphics();
+    treeGraphics.ellipse(0, 10, 30, 15).fill({ color: 0x000000, alpha: 0.3 });
+    treeGraphics.rect(-6, -10, 12, 20).fill('#5D4037');
+    treeGraphics.poly([0, -80, 40, 0, -40, 0]).fill('#1B5E20');
+    treeGraphics.poly([0, -110, 35, -30, -35, -30]).fill('#2E7D32');
+    treeGraphics.poly([0, -140, 30, -60, -30, -60]).fill('#388E3C');
+    treeGraphics.poly([0, -140, 30, -60, 0, -60]).fill({ color: 0xffffff, alpha: 0.1 });
+    treeGraphics.poly([0, -110, 35, -30, 0, -30]).fill({ color: 0xffffff, alpha: 0.1 });
+    treeGraphics.poly([0, -80, 40, 0, 0, 0]).fill({ color: 0xffffff, alpha: 0.1 });
+
+    // 2. Render thành Texture (Chỉ tốn chi phí 1 lần duy nhất để giải quyết Draw Calls)
+    const treeTexture = this.game.app.renderer.generateTexture(treeGraphics);
+
     const drawPineTree = (x, y, scale = 1) => {
-      const tree = new Graphics();
-      // Bóng (Shadow)
-      tree.ellipse(0, 10 * scale, 30 * scale, 15 * scale).fill({ color: 0x000000, alpha: 0.3 });
-      
-      // Thân cây (Trunk)
-      tree.rect(-6 * scale, -10 * scale, 12 * scale, 20 * scale).fill('#5D4037');
-      
-      // Các tầng lá (Pine foliage) - từ dưới lên trên
-      tree.poly([0, -80 * scale, 40 * scale, 0, -40 * scale, 0]).fill('#1B5E20');
-      tree.poly([0, -110 * scale, 35 * scale, -30 * scale, -35 * scale, -30 * scale]).fill('#2E7D32');
-      tree.poly([0, -140 * scale, 30 * scale, -60 * scale, -30 * scale, -60 * scale]).fill('#388E3C');
-      
-      // Highlight (Tạo độ phẳng cho cây)
-      tree.poly([0, -140 * scale, 30 * scale, -60 * scale, 0, -60 * scale]).fill({ color: 0xffffff, alpha: 0.1 });
-      tree.poly([0, -110 * scale, 35 * scale, -30 * scale, 0, -30 * scale]).fill({ color: 0xffffff, alpha: 0.1 });
-      tree.poly([0, -80 * scale, 40 * scale, 0, 0, 0]).fill({ color: 0xffffff, alpha: 0.1 });
-      
+      const tree = new Sprite(treeTexture);
+      // Tâm của bounding box Y: minY = -140, maxY = 25 -> chiều cao 165
+      tree.anchor.set(0.5, 140 / 165); 
+      tree.scale.set(scale);
       tree.x = x;
       tree.y = y;
-      tree.zIndex = y + 10 * scale; // Adjust zIndex to match the visual base (shadow)
+      tree.zIndex = y + 10 * scale; 
       this.entityLayer.addChild(tree);
     };
 
@@ -312,8 +337,11 @@ export class GameScene {
   // === VFX: Hạt nổ cơ bản ===
   createExplosion(x, y, count = 15, color = 0xFFD54F, sizeScale = 1) {
     for (let i = 0; i < count; i++) {
-      const p = new Graphics();
-      p.circle(0, 0, (4 + Math.random() * 6) * sizeScale).fill(color);
+      const p = new Sprite(this.texCircle);
+      p.tint = color;
+      p.anchor.set(0.5);
+      // circle base r=10
+      p.scale.set(((4 + Math.random() * 6) / 10) * sizeScale);
       p.x = x;
       p.y = y;
       const angle = Math.random() * Math.PI * 2;
@@ -399,12 +427,8 @@ export class GameScene {
 
     // 2. Khói bụi trắng (Clouds)
     for (let i = 0; i < 8; i++) {
-      const cloud = new Graphics();
-      // Vẽ cụm mây bằng 3 hình tròn
-      cloud.circle(0, 0, 15).fill('#ffffff');
-      cloud.circle(10, 5, 10).fill('#ffffff');
-      cloud.circle(-10, 5, 12).fill('#ffffff');
-
+      const cloud = new Sprite(this.texCloud);
+      cloud.anchor.set(0.5);
       cloud.x = x + (Math.random() - 0.5) * 40 * sizeScale;
       cloud.y = y + (Math.random() - 0.5) * 40 * sizeScale;
 
@@ -485,10 +509,12 @@ export class GameScene {
     // Vài mảnh vỡ bắn ra theo hướng bị húc
     const fragColors = [0xFFCDD2, 0xEF9A9A, 0xE57373];
     for (let i = 0; i < 5; i++) {
-      const frag = new Graphics();
+      const frag = new Sprite(this.texFrag);
       const fc = fragColors[Math.floor(Math.random() * fragColors.length)];
+      frag.tint = fc;
+      frag.anchor.set(0.5);
       const fragSize = (2 + Math.random() * 4) * vs;
-      frag.circle(0, 0, fragSize).fill(fc);
+      frag.scale.set(fragSize / 10);
       frag.x = x;
       frag.y = y - 20 * vs;
       // Mảnh bay theo hướng húc + random
@@ -595,9 +621,10 @@ export class GameScene {
   createConfetti() {
     const colors = [0xFFD700, 0xFF9800, 0xFF5722, 0x4CAF50, 0x2196F3, 0x9C27B0, 0xE91E63];
     for (let i = 0; i < 30; i++) {
-      const conf = new Graphics();
+      const conf = new Sprite(this.texConfetti);
+      conf.anchor.set(0.5);
       const color = colors[Math.floor(Math.random() * colors.length)];
-      conf.rect(-8, -4, 16, 8).fill(color);
+      conf.tint = color;
       
       conf.x = this.game.app.screen.width / 2;
       conf.y = this.game.app.screen.height / 2;
@@ -898,7 +925,9 @@ export class GameScene {
       if (p._targetEat) {
         const target = p._targetEat;
         if (target.isDead) {
-          p.life = 0; // Xóa sổ
+          this.vfxLayer.removeChild(p);
+          p.destroy();
+          this.particles.splice(i, 1);
         } else {
           // Bay từ từ về phía miệng để người chơi kịp nhìn thấy
           const tx = target.x;
@@ -1126,10 +1155,11 @@ export class GameScene {
       // Check va chạm bình thường (Chỉ player)
       const dx = pCx - food.x;
       const dy = pCy - food.y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
+      const distSq = dx*dx + dy*dy;
+      const rSum = pRadius + food.radius;
       
       // Ăn khi chạm vào
-      if (dist < pRadius + food.radius) {
+      if (distSq < rSum * rSum) {
          food.isDead = true;
          
          // Chuyển sprite thành hạt bay vào mồm
@@ -1154,9 +1184,10 @@ export class GameScene {
         
         const edx = eCx - food.x;
         const edy = eCy - food.y;
-        const edist = Math.sqrt(edx*edx + edy*edy);
+        const edistSq = edx*edx + edy*edy;
+        const erSum = enemy.radius + food.radius;
         
-        if (edist < enemy.radius + food.radius) {
+        if (edistSq < erSum * erSum) {
            food.isDead = true;
            
            // Chuyển sprite thành hạt bay vào mồm kẻ địch
@@ -1219,7 +1250,7 @@ for (const enemy of this.enemies) {
             enemy.addScore(-penalty);
             for (let k = 0; k < Math.min(15, penalty); k++) {
                 const angle = Math.random() * Math.PI * 2;
-                const dropDist = 50 + Math.random() * 100;
+                const dropDist = enemy.radius + 30 + Math.random() * 80;
                 this.spawnFood(eCx + Math.cos(angle) * dropDist, eCy + Math.sin(angle) * dropDist);
             }
             this.createExplosion(eCx, eCy, 15, 0xff0000, 1.0);
@@ -1236,7 +1267,7 @@ for (const enemy of this.enemies) {
             this.player.addScore(-penalty);
             for (let k = 0; k < Math.min(15, penalty); k++) {
                 const angle = Math.random() * Math.PI * 2;
-                const dropDist = 50 + Math.random() * 100;
+                const dropDist = this.player.radius + 30 + Math.random() * 80;
                 this.spawnFood(pCx + Math.cos(angle) * dropDist, pCy + Math.sin(angle) * dropDist);
             }
             this.createExplosion(pCx, pCy, 15, 0xff0000, 1.0);
@@ -1375,7 +1406,7 @@ for (let i = 0; i < this.enemies.length; i++) {
               e2.addScore(-penalty);
               for (let k = 0; k < Math.min(10, penalty); k++) {
                   const angle = Math.random() * Math.PI * 2;
-                  const dropDist = 50 + Math.random() * 80;
+                  const dropDist = e2.radius + 30 + Math.random() * 80;
                   this.spawnFood(e2Cx + Math.cos(angle) * dropDist, e2Cy + Math.sin(angle) * dropDist);
               }
               this.createExplosion(e2Cx, e2Cy, 15, 0xff0000, 1.0);
@@ -1392,7 +1423,7 @@ for (let i = 0; i < this.enemies.length; i++) {
               e1.addScore(-penalty);
               for (let k = 0; k < Math.min(10, penalty); k++) {
                   const angle = Math.random() * Math.PI * 2;
-                  const dropDist = 50 + Math.random() * 80;
+                  const dropDist = e1.radius + 30 + Math.random() * 80;
                   this.spawnFood(e1Cx + Math.cos(angle) * dropDist, e1Cy + Math.sin(angle) * dropDist);
               }
               this.createExplosion(e1Cx, e1Cy, 15, 0xff0000, 1.0);
