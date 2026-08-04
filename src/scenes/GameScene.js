@@ -5,6 +5,7 @@ import { Food } from '../entities/Food.js';
 import { checkCircleCollision } from '../utils/math.js';
 import { IconBtn } from '../ui/Button.js';
 import { VirtualJoystick } from '../ui/Joystick.js';
+import { winkGame } from '../integrations/wink/wink-adapter.js';
 
 export class GameScene {
   constructor(game) {
@@ -228,6 +229,9 @@ export class GameScene {
   onEnter(data) {
     window.addEventListener('keydown', this._onKeyDown);
     window.addEventListener('keyup', this._onKeyUp);
+
+    // ── Wink: start a new round ──
+    this._winkRound = winkGame.startRound();
     
     // Chặn menu chuột phải để không gây lỗi kẹt joystick khi click chuột phải
     if (this.game.app.canvas) {
@@ -999,6 +1003,20 @@ export class GameScene {
       this.player.isDead = true; // Ngừng điều khiển
       
       // Đổi thành playBGM để chặn nhạc nền cơ bản và phát nhạc Win
+      // ── Wink: complete round + submit score ──
+      if (this._winkRound) {
+        winkGame.completeRound(this._winkRound, {
+          metadata: { outcome: 'victory', score: this.player.score },
+        });
+        if (winkGame.canSubmitScore) {
+          winkGame.submitFinalScore({
+            score: this.player.score,
+            playTime: Math.round((Date.now() - this._winkRound.startedAtMs) / 1000),
+            gameMode: 'io',
+          }).catch(() => {});
+        }
+      }
+
       this.game.audioManager.playBGM('/assest/music/EndGameWin.wav', 1.0); 
       this.player.container.visible = false;
       this.createVictoryEffect();
@@ -1309,6 +1327,20 @@ for (const enemy of this.enemies) {
       // Chờ hiệu ứng bay vào màn hình (Khoảng 2s)
       setTimeout(() => {
         if (this.hasRevived) {
+          // ── Wink: complete round + submit score ──
+          if (this._winkRound) {
+            winkGame.completeRound(this._winkRound, {
+              metadata: { outcome: 'defeat', score: this.player.score },
+            });
+            if (winkGame.canSubmitScore) {
+              winkGame.submitFinalScore({
+                score: this.player.score,
+                playTime: Math.round((Date.now() - this._winkRound.startedAtMs) / 1000),
+                gameMode: 'io',
+              }).catch(() => {});
+            }
+          }
+
           this.game.switchScene('GameOver', { score: this.player.score });
           return;
         }
@@ -1332,12 +1364,42 @@ for (const enemy of this.enemies) {
               },
               () => {
                 this.game.app.ticker.start();
+                
+                // ── Wink: complete round + submit score ──
+                if (this._winkRound) {
+                  winkGame.completeRound(this._winkRound, {
+                    metadata: { outcome: 'defeat', score: this.player.score },
+                  });
+                  if (winkGame.canSubmitScore) {
+                    winkGame.submitFinalScore({
+                      score: this.player.score,
+                      playTime: Math.round((Date.now() - this._winkRound.startedAtMs) / 1000),
+                      gameMode: 'io',
+                    }).catch(() => {});
+                  }
+                }
+
                 this.game.switchScene('GameOver', { score: this.player.score });
               }
             );
           },
           () => {
             this.game.app.ticker.start();
+
+            // ── Wink: complete round + submit score ──
+            if (this._winkRound) {
+              winkGame.completeRound(this._winkRound, {
+                metadata: { outcome: 'defeat', score: this.player.score },
+              });
+              if (winkGame.canSubmitScore) {
+                winkGame.submitFinalScore({
+                  score: this.player.score,
+                  playTime: Math.round((Date.now() - this._winkRound.startedAtMs) / 1000),
+                  gameMode: 'io',
+                }).catch(() => {});
+              }
+            }
+
             this.game.switchScene('GameOver', { score: this.player.score });
           }
         );
