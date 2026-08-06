@@ -8,6 +8,7 @@
     "prebuild": "node scripts/verify-wink-bridge.mjs",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "node --test test/*.test.js",
     "verify:wink-bridge": "node scripts/verify-wink-bridge.mjs"
   },
   "keywords": [],

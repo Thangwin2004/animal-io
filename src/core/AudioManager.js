@@ -16,6 +16,7 @@ export class AudioManager {
 
     this.isBgmMuted = false;
     this.isSfxMuted = false;
+    this.isPlatformMuted = false;
     
     this.buffers = {}; // Lưu trữ âm thanh SFX load từ file
     
@@ -137,14 +138,27 @@ export class AudioManager {
 
   toggleBGM() {
     this.isBgmMuted = !this.isBgmMuted;
-    this.bgmGain.gain.value = this.isBgmMuted ? 0 : 1;
+    this.applyMuteState();
     return this.isBgmMuted;
   }
   
   toggleSFX() {
     this.isSfxMuted = !this.isSfxMuted;
-    this.sfxGain.gain.value = this.isSfxMuted ? 0 : 1;
+    this.applyMuteState();
     return this.isSfxMuted;
+  }
+
+  setMuted(muted) {
+    this.isPlatformMuted = muted === true;
+    this.applyMuteState();
+    return this.isPlatformMuted;
+  }
+
+  applyMuteState() {
+    this.bgmGain.gain.value =
+      this.isPlatformMuted || this.isBgmMuted ? 0 : 1;
+    this.sfxGain.gain.value =
+      this.isPlatformMuted || this.isSfxMuted ? 0 : 1;
   }
   
   resumeContext() {
