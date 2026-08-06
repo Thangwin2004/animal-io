@@ -4,7 +4,7 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 
 const EXPECTED_SHA256 =
-  "afe2a789466c3d68f4eec7d8cf2e718f45a29a19a5d8b9eb8c4cec10b18f31eb";
+  "2c116572babd9d850f19a91ff68669395eb3c8cd268c34f85be3d13d5625e29c";
 const EXPECTED_PARENT = "https://winkgames.papastudio.net";
 const EXPECTED_GAME_ID = "8c16d0b3-8fec-444e-aaae-5b89e123b537";
 
@@ -24,9 +24,9 @@ if (
   config.gameId !== EXPECTED_GAME_ID ||
   config.environment !== "prod" ||
   config.protocolVersion !== 1 ||
-  config.bridgeVersion !== "9.0.0" ||
+  config.bridgeVersion !== "9.0.1" ||
   JSON.stringify(config.allowedParentOrigins) !== JSON.stringify([EXPECTED_PARENT]) ||
-  lock.bridgeVersion !== "9.0.0" ||
+  lock.bridgeVersion !== "9.0.1" ||
   lock.protocolVersion !== 1 ||
   lock.sha256 !== EXPECTED_SHA256 ||
   lock.bytes !== artifact.byteLength ||
@@ -37,5 +37,5 @@ if (
 }
 
 console.log(
-  `wink bridge verified version=9.0.0 protocol=1 bytes=${artifact.byteLength} sha256=${sha256} environment=prod gameId=${config.gameId}`,
+  `wink bridge verified version=9.0.1 protocol=1 bytes=${artifact.byteLength} sha256=${sha256} environment=prod gameId=${config.gameId}`,
 );
