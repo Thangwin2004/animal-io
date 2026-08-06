@@ -12,10 +12,5 @@ game.init(document.getElementById('app')).then(() => {
     onUnmute: () => { if (game.audioManager) game.audioManager.setMuted(false); },
   });
 
-  winkGame.observe((state) => {
-    console.log('[WinkBridge] phase:', state.phase);
-  });
+  winkGame.observe(() => {});
 }).catch(console.error);
-
-// Export để có thể dùng debug
-window.game = game;
