@@ -318,14 +318,19 @@ export class OverlayManager {
 
     const pbScore = parseInt(localStorage.getItem('animal_io_best_score')) || 0;
 
-    let players = [];
-    for (let i = 1; i <= 10; i++) {
-      players.push({ name: `Player ${i}`, score: 10000 - i * 500, avatar: '/assest/image/imagenobackgrd/001_avatar_laclac.png' });
-    }
-    players.push({ name: 'Bạn (Khách)', score: pbScore, isMe: true, avatar: '/assest/image/imagenobackgrd/007_avatar_tiguawhite.png' });
+    const players = pbScore > 0
+      ? [{ name: 'Bạn (Khách)', score: pbScore, isMe: true, avatar: '/assest/image/imagenobackgrd/007_avatar_tiguawhite.png' }]
+      : [];
     
     players.sort((a, b) => b.score - a.score);
-    let myRank = players.findIndex(p => p.isMe) + 1;
+    const myRank = players.findIndex(p => p.isMe) + 1;
+
+    if (players.length === 0) {
+      const emptyText = document.createElement('div');
+      emptyText.style.cssText = 'padding:40px 20px;text-align:center;color:#8B4A00;font-family:"Baloo 2","Be Vietnam Pro",sans-serif;font-size:18px;font-weight:700;';
+      emptyText.innerText = 'Chưa có thành tích. Hãy chơi để thiết lập kỷ lục đầu tiên.';
+      list.appendChild(emptyText);
+    }
     
     players.slice(0, 10).forEach((p, index) => {
       const isOdd = (index + 1) % 2 !== 0;
