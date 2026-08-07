@@ -5,7 +5,10 @@ import fs from "node:fs/promises";
 
 const EXPECTED_SHA256 =
   "2c116572babd9d850f19a91ff68669395eb3c8cd268c34f85be3d13d5625e29c";
-const EXPECTED_PARENT = "https://winkgames.papastudio.net";
+const EXPECTED_PARENTS = [
+  "https://winkgames.papastudio.net",
+  "http://localhost:3000",
+];
 const EXPECTED_GAME_ID = "8c16d0b3-8fec-444e-aaae-5b89e123b537";
 
 const [artifact, lockText, configText, indexHtml] = await Promise.all([
@@ -25,7 +28,8 @@ if (
   config.environment !== "prod" ||
   config.protocolVersion !== 1 ||
   config.bridgeVersion !== "9.0.1" ||
-  JSON.stringify(config.allowedParentOrigins) !== JSON.stringify([EXPECTED_PARENT]) ||
+  JSON.stringify(config.allowedParentOrigins) !==
+    JSON.stringify(EXPECTED_PARENTS) ||
   lock.bridgeVersion !== "9.0.1" ||
   lock.protocolVersion !== 1 ||
   lock.sha256 !== EXPECTED_SHA256 ||
