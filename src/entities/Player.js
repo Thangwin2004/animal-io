@@ -34,14 +34,7 @@ export class Player {
     this.sprite.y = -10; // Nâng avatar lên một chút so với tâm riderContainer
     this.riderContainer.addChild(this.sprite);
 
-    // Mask cong ở phía dưới để cắt bớt chân/phần dưới phẳng của ảnh, tạo cảm giác lún (ngồi)
-    if (mountTexture) {
-      const riderMask = new Graphics();
-      riderMask.roundRect(-40, -60, 80, 80, 20).fill(0xffffff); // Viền dưới bo tròn tại y = 20
-      this.riderContainer.addChild(riderMask);
-      this.riderContainer.mask = riderMask;
-    }
-
+    // Mask removed for performance optimization
     this.bodyContainer.addChild(this.riderContainer);
 
     this.container.addChild(this.bodyContainer);

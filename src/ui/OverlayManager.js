@@ -156,7 +156,7 @@ export class OverlayManager {
       white-space: nowrap;
       z-index:10;
     `;
-    ribbon.innerText = "CÀI ĐẶT GAME";
+    ribbon.innerText = "CÀI ĐẶT";
 
     // Rows
     const createRow = (label, isMuted, onToggle) => {
@@ -306,7 +306,7 @@ export class OverlayManager {
       white-space: nowrap;
       z-index:10;
     `;
-    ribbon.innerText = "BẢNG VÀNG THÀNH TÍCH";
+    ribbon.innerText = "BẢNG VÀNG";
 
     // Headers
     const headers = document.createElement("div");
