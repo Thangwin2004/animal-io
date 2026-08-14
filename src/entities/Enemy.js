@@ -35,11 +35,7 @@ export class Enemy {
     this.sprite.y = -10;
     this.riderContainer.addChild(this.sprite);
 
-    const riderMask = new Graphics();
-    riderMask.roundRect(-40, -60, 80, 80, 20).fill(0xffffff);
-    this.riderContainer.addChild(riderMask);
-    this.riderContainer.mask = riderMask;
-
+    // mask removed for performance optimization
     this.bodyContainer.addChild(this.riderContainer);
 
     this.container.addChild(this.bodyContainer);

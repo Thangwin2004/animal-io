@@ -101,8 +101,9 @@ export class GameScene {
       }
     });
 
-    const pointerUp = (e) => {
-      if (this.joystickPointerId !== null && e.pointerId !== this.joystickPointerId) {
+    this._pointerUp = (e) => {
+      // Reset joystick nếu pointerId trùng khớp hoặc không xác định (từ global window event)
+      if (this.joystickPointerId !== null && e.pointerId !== undefined && e.pointerId !== this.joystickPointerId) {
         return; // Bỏ qua nếu đây là ngón tay khác đang nhấc lên
       }
       this.joystickPointerId = null;
@@ -111,11 +112,14 @@ export class GameScene {
         this.player.setTarget(this.player.x, this.player.y);
       }
     };
-    this.container.on('pointerup', pointerUp);
-    this.container.on('pointerupoutside', pointerUp);
-    this.container.on('pointercancel', pointerUp); // Chống kẹt khi chuột phải / mất focus
+    this.container.on('pointerup', this._pointerUp);
+    this.container.on('pointerupoutside', this._pointerUp);
+    this.container.on('pointercancel', this._pointerUp); // Chống kẹt khi mất focus
+    this.container.on('pointerout', this._pointerUp); // Chống kẹt khi vuốt ra ngoài mép màn hình
 
     this.enemyNames = ["Tom", "Jerry", "Mickey", "Donald", "Goofy", "Pluto", "Simba", "Nala", "Timon", "Pumbaa"];
+
+    this.spritePool = [];
 
     this.createLeaderboard();
     this._initVFXTextures();
@@ -199,6 +203,7 @@ export class GameScene {
     // 2. Render thành Texture (Chỉ tốn chi phí 1 lần duy nhất để giải quyết Draw Calls)
     const treeTexture = this.game.app.renderer.generateTexture(treeGraphics);
 
+    this.borderTrees = [];
     const drawPineTree = (x, y, scale = 1) => {
       const tree = new Sprite(treeTexture);
       // Tâm của bounding box Y: minY = -140, maxY = 25 -> chiều cao 165
@@ -208,6 +213,7 @@ export class GameScene {
       tree.y = y;
       tree.zIndex = y + 10 * scale; 
       this.entityLayer.addChild(tree);
+      this.borderTrees.push(tree);
     };
 
     // Mật độ cây phụ thuộc vào kích thước bản đồ
@@ -229,6 +235,8 @@ export class GameScene {
   onEnter(data) {
     window.addEventListener('keydown', this._onKeyDown);
     window.addEventListener('keyup', this._onKeyUp);
+    window.addEventListener('pointerup', this._pointerUp);
+    window.addEventListener('pointercancel', this._pointerUp);
 
     // ── Wink: start a new round ──
     this._winkRound = winkGame.startRound();
@@ -341,7 +349,9 @@ export class GameScene {
   // === VFX: Hạt nổ cơ bản ===
   createExplosion(x, y, count = 15, color = 0xFFD54F, sizeScale = 1) {
     for (let i = 0; i < count; i++) {
-      const p = new Sprite(this.texCircle);
+      let p = this.spritePool.length > 0 ? this.spritePool.pop() : new Sprite();
+      p.texture = this.texCircle;
+      p.isSprite = true;
       p.tint = color;
       p.anchor.set(0.5);
       // circle base r=10
@@ -354,6 +364,20 @@ export class GameScene {
       p.vy = Math.sin(angle) * speed;
       p.life = 1.0;
       p.decay = 0.02 + Math.random() * 0.03;
+      p.alpha = 1.0;
+      p.rotation = 0;
+      p._gravity = 0;
+      p._spin = 0;
+      p.dScale = 0;
+      p._isLaunch = false;
+      p._targetEat = null;
+      p._isCrack = false;
+      p._isScreenSmash = false;
+      p._isVictoryOverlay = false;
+      p._isVictoryRays = false;
+      p._isVictorySmash = false;
+      p._isConfetti = false;
+
       this.vfxLayer.addChild(p);
       this.particles.push(p);
     }
@@ -431,7 +455,10 @@ export class GameScene {
 
     // 2. Khói bụi trắng (Clouds)
     for (let i = 0; i < 8; i++) {
-      const cloud = new Sprite(this.texCloud);
+      let cloud = this.spritePool.length > 0 ? this.spritePool.pop() : new Sprite();
+      cloud.texture = this.texCloud;
+      cloud.isSprite = true;
+      cloud.tint = 0xFFFFFF;
       cloud.anchor.set(0.5);
       cloud.x = x + (Math.random() - 0.5) * 40 * sizeScale;
       cloud.y = y + (Math.random() - 0.5) * 40 * sizeScale;
@@ -444,6 +471,20 @@ export class GameScene {
       cloud.scale.set((0.4 + Math.random() * 0.4) * sizeScale);
       cloud.life = 1.0;
       cloud.decay = 0.03 + Math.random() * 0.02;
+      
+      cloud.alpha = 1.0;
+      cloud.rotation = 0;
+      cloud._gravity = 0;
+      cloud._spin = 0;
+      cloud.dScale = 0;
+      cloud._isLaunch = false;
+      cloud._targetEat = null;
+      cloud._isCrack = false;
+      cloud._isScreenSmash = false;
+      cloud._isVictoryOverlay = false;
+      cloud._isVictoryRays = false;
+      cloud._isVictorySmash = false;
+      cloud._isConfetti = false;
 
       this.vfxLayer.addChild(cloud);
       this.particles.push(cloud);
@@ -773,6 +814,16 @@ export class GameScene {
     }
   }
 
+  _recycleParticle(p, i, layer) {
+    layer.removeChild(p);
+    if (p.isSprite && this.spritePool.length < 300) {
+      this.spritePool.push(p);
+    } else {
+      p.destroy();
+    }
+    this.particles.splice(i, 1);
+  }
+
   // === Particle update loop (tách riêng để dùng cả khi player chết) ===
   _updateParticles() {
     for (let i = this.particles.length - 1; i >= 0; i--) {
@@ -799,9 +850,7 @@ export class GameScene {
         p.life -= p.decay;
         p.alpha = Math.max(0, p.life);
         if (p.life <= 0) {
-          this.uiLayer.removeChild(p);
-          p.destroy();
-          this.particles.splice(i, 1);
+          this._recycleParticle(p, i, this.uiLayer);
         }
         continue;
       }
@@ -834,9 +883,7 @@ export class GameScene {
             p.alpha -= 0.02; // Mờ dần khi rơi
           }
           if (p.alpha <= 0) {
-            this.uiLayer.removeChild(p);
-            p.destroy();
-            this.particles.splice(i, 1);
+            this._recycleParticle(p, i, this.uiLayer);
           }
         }
         continue;
@@ -891,9 +938,7 @@ export class GameScene {
         p.life -= p.decay;
         p.alpha = Math.max(0, p.life);
         if (p.life <= 0) {
-            this.uiLayer.removeChild(p);
-            p.destroy();
-            this.particles.splice(i, 1);
+            this._recycleParticle(p, i, this.uiLayer);
         }
         continue;
       }
@@ -918,9 +963,7 @@ export class GameScene {
 
         p.life -= p.decay;
         if (p.life <= 0 || p.alpha < 0.02) {
-          this.vfxLayer.removeChild(p);
-          p.destroy();
-          this.particles.splice(i, 1);
+          this._recycleParticle(p, i, this.vfxLayer);
         }
         continue;
       }
@@ -929,9 +972,7 @@ export class GameScene {
       if (p._targetEat) {
         const target = p._targetEat;
         if (target.isDead) {
-          this.vfxLayer.removeChild(p);
-          p.destroy();
-          this.particles.splice(i, 1);
+          this._recycleParticle(p, i, this.vfxLayer);
         } else {
           // Bay từ từ về phía miệng để người chơi kịp nhìn thấy
           const tx = target.x;
@@ -945,9 +986,7 @@ export class GameScene {
           
           p.life -= p.decay;
           if (p.life <= 0 || p.scale.x < 0.05) {
-            this.vfxLayer.removeChild(p);
-            p.destroy();
-            this.particles.splice(i, 1);
+            this._recycleParticle(p, i, this.vfxLayer);
           }
         }
         continue;
@@ -974,9 +1013,7 @@ export class GameScene {
       p.alpha = Math.max(0, p.life);
 
       if (p.life <= 0) {
-        this.vfxLayer.removeChild(p);
-        p.destroy();
-        this.particles.splice(i, 1);
+        this._recycleParticle(p, i, this.vfxLayer);
       }
     }
   }
@@ -1099,6 +1136,14 @@ export class GameScene {
       // Culling: Ẩn thức ăn nếu nằm ngoài màn hình
       food.sprite.visible = this.isInViewport(food.x, food.y);
     }
+
+    // Culling cho border trees
+    if (this.borderTrees) {
+      for (let i = 0; i < this.borderTrees.length; i++) {
+        const tree = this.borderTrees[i];
+        tree.visible = this.isInViewport(tree.x, tree.y);
+      }
+    }
     
     if (activeFoods < 150) {
       this.spawnFood();
@@ -1173,24 +1218,27 @@ export class GameScene {
       // Check va chạm bình thường (Chỉ player)
       const dx = pCx - food.x;
       const dy = pCy - food.y;
-      const distSq = dx*dx + dy*dy;
       const rSum = pRadius + food.radius;
       
-      // Ăn khi chạm vào
-      if (distSq < rSum * rSum) {
-         food.isDead = true;
-         
-         // Chuyển sprite thành hạt bay vào mồm
-         this.entityLayer.removeChild(food.sprite);
-         this.vfxLayer.addChild(food.sprite);
-         food.sprite.life = 1.0;
-         food.sprite.decay = 0.03; // Giảm decay để sống lâu hơn, bay từ từ vào mồm
-         food.sprite._targetEat = this.player;
-         this.particles.push(food.sprite);
+      // AABB check trước khi tính khoảng cách
+      if (Math.abs(dx) < rSum && Math.abs(dy) < rSum) {
+        const distSq = dx*dx + dy*dy;
+        // Ăn khi chạm vào
+        if (distSq < rSum * rSum) {
+           food.isDead = true;
+           
+           // Chuyển sprite thành hạt bay vào mồm
+           this.entityLayer.removeChild(food.sprite);
+           this.vfxLayer.addChild(food.sprite);
+           food.sprite.life = 1.0;
+           food.sprite.decay = 0.03; // Giảm decay để sống lâu hơn, bay từ từ vào mồm
+           food.sprite._targetEat = this.player;
+           this.particles.push(food.sprite);
 
-         this.player.addScore(food.scoreValue);
-         this.game.audioManager.playSFX('pop');
-         continue;
+           this.player.addScore(food.scoreValue);
+           this.game.audioManager.playSFX('pop');
+           continue;
+        }
       }
 
       // Kẻ địch (máy) ăn
@@ -1202,28 +1250,33 @@ export class GameScene {
         
         const edx = eCx - food.x;
         const edy = eCy - food.y;
-        const edistSq = edx*edx + edy*edy;
         const erSum = enemy.radius + food.radius;
         
-        if (edistSq < erSum * erSum) {
-           food.isDead = true;
-           
-           // Chuyển sprite thành hạt bay vào mồm kẻ địch
-           this.entityLayer.removeChild(food.sprite);
-           this.vfxLayer.addChild(food.sprite);
-           food.sprite.life = 1.0;
-           food.sprite.decay = 0.03; // Giảm decay cho địch giống player
-           food.sprite._targetEat = enemy;
-           this.particles.push(food.sprite);
-           
-           enemy.addScore(food.scoreValue);
-           this.playSoundAt('pop', food.x, food.y, 800);
-           break;
+        // AABB check cho kẻ địch
+        if (Math.abs(edx) < erSum && Math.abs(edy) < erSum) {
+          const edistSq = edx*edx + edy*edy;
+          if (edistSq < erSum * erSum) {
+             food.isDead = true;
+             
+             // Chuyển sprite thành hạt bay vào mồm kẻ địch
+             this.entityLayer.removeChild(food.sprite);
+             this.vfxLayer.addChild(food.sprite);
+             food.sprite.life = 1.0;
+             food.sprite.decay = 0.03; // Giảm decay cho địch giống player
+             food.sprite._targetEat = enemy;
+             this.particles.push(food.sprite);
+             
+             enemy.addScore(food.scoreValue);
+             this.playSoundAt('pop', food.x, food.y, 800);
+             break;
+          }
         }
       }
     }
 
-    this.foods = this.foods.filter(f => !f.isDead);
+    for (let i = this.foods.length - 1; i >= 0; i--) {
+      if (this.foods[i].isDead) this.foods.splice(i, 1);
+    }
 
 // Check PVP Collisions (giữ hitbox PVP bình thường nhưng dời lên tâm thân)
 for (const enemy of this.enemies) {
@@ -1550,7 +1603,9 @@ for (let i = 0; i < this.enemies.length; i++) {
   }
 }
 
-this.enemies = this.enemies.filter(e => !e.isDead);
+    for (let i = this.enemies.length - 1; i >= 0; i--) {
+      if (this.enemies[i].isDead) this.enemies.splice(i, 1);
+    }
 
 if (this.enemies.length < 10) {
   this.spawnEnemy();
@@ -1646,6 +1701,8 @@ playSoundAt(type, x, y, maxDist = 1500) {
 onExit() {
   window.removeEventListener('keydown', this._onKeyDown);
   window.removeEventListener('keyup', this._onKeyUp);
+  window.removeEventListener('pointerup', this._pointerUp);
+  window.removeEventListener('pointercancel', this._pointerUp);
 }
 }
 

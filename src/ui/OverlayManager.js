@@ -1,4 +1,23 @@
 import gsap from 'gsap';
+import { winkGame } from '../integrations/wink/wink-adapter.js';
+
+function getEffectiveUser() {
+  try {
+    const savedUser = localStorage.getItem("google_user");
+    if (savedUser) {
+      const parsed = JSON.parse(savedUser);
+      if (parsed && parsed.name) return parsed;
+    }
+  } catch (e) {}
+
+  if (winkGame && winkGame.isAuthenticated) {
+    return {
+      name: "Thành viên",
+      avatar: "/assest/image/imagenobackgrd/007_avatar_tiguawhite.png",
+    };
+  }
+  return null;
+}
 
 export class OverlayManager {
   constructor(game) {
@@ -137,7 +156,7 @@ export class OverlayManager {
       white-space: nowrap;
       z-index:10;
     `;
-    ribbon.innerText = "CÀI ĐẶT GAME";
+    ribbon.innerText = "CÀI ĐẶT";
 
     // Rows
     const createRow = (label, isMuted, onToggle) => {
@@ -287,7 +306,7 @@ export class OverlayManager {
       white-space: nowrap;
       z-index:10;
     `;
-    ribbon.innerText = "BẢNG VÀNG THÀNH TÍCH";
+    ribbon.innerText = "BẢNG VÀNG";
 
     // Headers
     const headers = document.createElement("div");
@@ -317,9 +336,12 @@ export class OverlayManager {
     };
 
     const pbScore = parseInt(localStorage.getItem('animal_io_best_score')) || 0;
+    const effUser = getEffectiveUser();
+    const playerName = effUser ? effUser.name : 'Bạn (Khách)';
+    const playerAvatar = effUser?.avatar || '/assest/image/imagenobackgrd/007_avatar_tiguawhite.png';
 
     const players = pbScore > 0
-      ? [{ name: 'Bạn (Khách)', score: pbScore, isMe: true, avatar: '/assest/image/imagenobackgrd/007_avatar_tiguawhite.png' }]
+      ? [{ name: playerName, score: pbScore, isMe: true, avatar: playerAvatar }]
       : [];
     
     players.sort((a, b) => b.score - a.score);
@@ -347,8 +369,8 @@ export class OverlayManager {
     footer.style.cssText = `width:96%; max-width:450px; height:60px; border-radius:12px; background:#FFFDF9; border:3px solid #6AB8FF; box-shadow: inset 0 2px 10px rgba(106,184,255,0.2); margin-top:15px; display:flex; align-items:center; padding:0 15px; box-sizing:border-box; color:#1E88E5; font-family:'Baloo 2', 'Be Vietnam Pro', sans-serif; font-size:20px; font-weight:800;`;
     footer.innerHTML = `<div style="flex:1; font-size:24px;">${myRank > 0 ? myRank : '-'}</div>
                         <div style="flex:2; display:flex; align-items:center; gap:10px;">
-                          <img src="/assest/image/imagenobackgrd/007_avatar_tiguawhite.png" style="width:36px; height:36px; border-radius:50%; object-fit:cover; border:2px solid #1E88E5;">
-                          Bạn (Khách)
+                          <img src="${playerAvatar}" style="width:36px; height:36px; border-radius:50%; object-fit:cover; border:2px solid #1E88E5;">
+                          ${playerName}
                         </div>
                         <div style="flex:1; text-align:right; font-size:24px; font-family:'Nunito', 'Baloo 2', sans-serif;">${pbScore}</div>`;
 

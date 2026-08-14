@@ -65,14 +65,18 @@ export class WinkGameIntegration {
     this.#completedRounds.add(round.roundId);
 
     const { playDurationMs, ...rest } = extra;
-    complete({
-      roundId: round.roundId,
-      playDurationMs: Math.max(
-        0,
-        Math.round(playDurationMs ?? Date.now() - round.startedAtMs),
-      ),
-      ...rest,
-    });
+    try {
+      complete({
+        roundId: round.roundId,
+        playDurationMs: Math.max(
+          0,
+          Math.round(playDurationMs ?? Date.now() - round.startedAtMs),
+        ),
+        ...rest,
+      });
+    } catch (e) {
+      console.warn('Wink game complete failed:', e);
+    }
     return true;
   }
 
