@@ -68,10 +68,10 @@ export class OverlayManager {
 
     const title = document.createElement("div");
     title.innerText = "BẠN CÓ MUỐN HỒI SINH KHÔNG?";
-    title.style.cssText = "color:#FF9800; text-shadow: -2px -2px 0 #8B4A00, 2px -2px 0 #8B4A00, -2px 2px 0 #8B4A00, 2px 2px 0 #8B4A00; font-family:'Nunito', 'Baloo 2', sans-serif; font-size:32px; font-weight:900; margin-top:20px; text-align:center; padding: 0 20px; line-height: 1.2; text-shadow: 0 4px 0px rgba(0,0,0,0.2);";
+    title.style.cssText = "color:#FF9800; text-shadow: -2px -2px 0 #8B4A00, 2px -2px 0 #8B4A00, -2px 2px 0 #8B4A00, 2px 2px 0 #8B4A00; font-family:Be Vietnam Pro, sans-serif; font-size:32px; font-weight:900; margin-top:20px; text-align:center; padding: 0 20px; line-height: 1.2; text-shadow: 0 4px 0px rgba(0,0,0,0.2);";
 
     const yesBtn = document.createElement("button");
-    yesBtn.style.cssText = "position:relative; margin-top:30px; background:linear-gradient(to bottom, #FFD54F, #FB8C00); border:4px solid #fff; border-radius:30px; padding:12px 50px; color:#ffffff; text-shadow: -2px -2px 0 #8B4A00, 2px -2px 0 #8B4A00, -2px 2px 0 #8B4A00, 2px 2px 0 #8B4A00; font-family:'Nunito', 'Baloo 2', sans-serif; font-size:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow: 0 8px 0 #E65100, 0 12px 20px rgba(0,0,0,0.3); transition: transform 0.1s;";
+    yesBtn.style.cssText = "position:relative; margin-top:30px; background:linear-gradient(to bottom, #FFD54F, #FB8C00); border:4px solid #fff; border-radius:30px; padding:12px 50px; color:#ffffff; text-shadow: -2px -2px 0 #8B4A00, 2px -2px 0 #8B4A00, -2px 2px 0 #8B4A00, 2px 2px 0 #8B4A00; font-family:Be Vietnam Pro, sans-serif; font-size:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow: 0 8px 0 #E65100, 0 12px 20px rgba(0,0,0,0.3); transition: transform 0.1s;";
     yesBtn.innerHTML = `<svg viewBox="0 0 24 24" width="28" height="28" style="z-index:2; position:relative;"><path fill="#ffffff" stroke="#8B4A00" stroke-width="1.5" d="M8,5.14V19.14L19,12.14L8,5.14Z" /></svg> <span style="z-index:2; position:relative;">CÓ</span>`;
     
     // Highlight for Candy Crush button
@@ -90,7 +90,7 @@ export class OverlayManager {
 
     const noLink = document.createElement("div");
     noLink.innerText = "Không, cảm ơn";
-    noLink.style.cssText = "margin-top:25px; color:#8B4A00; opacity: 0.8; font-family:'Baloo 2', 'Be Vietnam Pro', sans-serif; font-size:18px; text-decoration:underline; cursor:pointer; font-weight:700;";
+    noLink.style.cssText = "margin-top:25px; color:#8B4A00; opacity: 0.8; font-family:Be Vietnam Pro, sans-serif; font-size:18px; text-decoration:underline; cursor:pointer; font-weight:700;";
     noLink.onclick = () => {
       overlay.remove();
       if (onSkip) onSkip();
@@ -150,7 +150,7 @@ export class OverlayManager {
       background: linear-gradient(180deg, #FFD54F 0%, #FFA000 100%);
       clip-path: polygon(15px 0%, calc(100% - 15px) 0%, 100% 50%, calc(100% - 15px) 100%, 15px 100%, 0% 50%);
       display:flex; justify-content:center; align-items:center;
-      color:#fff; font-family:'Nunito', 'Baloo 2', sans-serif; font-size:24px; font-weight:900;
+      color:#fff; font-family:Be Vietnam Pro, sans-serif; font-size:24px; font-weight:900;
       text-shadow: -2px -2px 0 #8B4A00, 2px -2px 0 #8B4A00, -2px 2px 0 #8B4A00, 2px 2px 0 #8B4A00;
       box-shadow: 0 4px 0 #E65100;
       white-space: nowrap;
@@ -164,7 +164,7 @@ export class OverlayManager {
       row.style.cssText = `width:90%; max-width:360px; height:75px; border-radius:20px; background:#FFF5D1; border:3px solid #E7C66E; display:flex; justify-content:space-between; align-items:center; padding:0 25px; box-sizing:border-box; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);`;
       
       const text = document.createElement("span");
-      text.style.cssText = `font-family:'Nunito', 'Baloo 2', sans-serif; font-size:24px; color:#8B4A00; letter-spacing:1px; text-shadow: -1px -1px 0 #8B4A00, 1px -1px 0 #8B4A00, -1px 1px 0 #8B4A00, 1px 1px 0 #8B4A00; white-space:nowrap;`;
+      text.style.cssText = `font-family:Be Vietnam Pro, sans-serif; font-size:24px; color:#8B4A00; letter-spacing:1px; text-shadow: -1px -1px 0 #8B4A00, 1px -1px 0 #8B4A00, -1px 1px 0 #8B4A00, 1px 1px 0 #8B4A00; white-space:nowrap;`;
       text.innerText = label;
 
       const toggle = document.createElement("div");
@@ -172,7 +172,7 @@ export class OverlayManager {
       
       const statusText = document.createElement("span");
       statusText.innerText = isMuted ? "OFF" : "ON";
-      statusText.style.cssText = `color:#fff; font-family:'Nunito', 'Baloo 2', sans-serif; font-size:20px; position:absolute; width:100%; text-align:center; padding-right:${isMuted ? '0' : '36px'}; padding-left:${isMuted ? '36px' : '0'}; box-sizing:border-box; transition: padding 0.25s; text-shadow: 0 2px 3px rgba(0,0,0,0.4); pointer-events:none; -webkit-text-stroke: 1px rgba(0,0,0,0.2);`;
+      statusText.style.cssText = `color:#fff; font-family:Be Vietnam Pro, sans-serif; font-size:20px; position:absolute; width:100%; text-align:center; padding-right:${isMuted ? '0' : '36px'}; padding-left:${isMuted ? '36px' : '0'}; box-sizing:border-box; transition: padding 0.25s; text-shadow: 0 2px 3px rgba(0,0,0,0.4); pointer-events:none; -webkit-text-stroke: 1px rgba(0,0,0,0.2);`;
 
       const knob = document.createElement("div");
       knob.style.cssText = `width:38px; height:38px; border-radius:50%; background:#fff; position:absolute; top:2px; left:${isMuted ? '4px' : '60px'}; transition: left 0.25s cubic-bezier(0.3, 1.2, 0.5, 1); box-shadow: 0 3px 6px rgba(0,0,0,0.4); pointer-events:none;`;
@@ -300,7 +300,7 @@ export class OverlayManager {
       background: linear-gradient(180deg, #FFD54F 0%, #FFA000 100%);
       clip-path: polygon(15px 0%, calc(100% - 15px) 0%, 100% 50%, calc(100% - 15px) 100%, 15px 100%, 0% 50%);
       display:flex; justify-content:center; align-items:center;
-      color:#fff; font-family:'Nunito', 'Baloo 2', sans-serif; font-size:26px; font-weight:900;
+      color:#fff; font-family:Be Vietnam Pro, sans-serif; font-size:26px; font-weight:900;
       text-shadow: -2px -2px 0 #8B4A00, 2px -2px 0 #8B4A00, -2px 2px 0 #8B4A00, 2px 2px 0 #8B4A00;
       box-shadow: 0 4px 0 #E65100;
       white-space: nowrap;
@@ -310,7 +310,7 @@ export class OverlayManager {
 
     // Headers
     const headers = document.createElement("div");
-    headers.style.cssText = `width:100%; max-width:450px; display:flex; color:#8B4A00; font-family:'Nunito', 'Baloo 2', sans-serif; font-size:20px; margin-top:10px; margin-bottom:10px; padding:0 15px; box-sizing:border-box;`;
+    headers.style.cssText = `width:100%; max-width:450px; display:flex; color:#8B4A00; font-family:Be Vietnam Pro, sans-serif; font-size:20px; margin-top:10px; margin-bottom:10px; padding:0 15px; box-sizing:border-box;`;
     headers.innerHTML = `<div style="flex:1;">HẠNG</div><div style="flex:2;">THÀNH VIÊN</div><div style="flex:1; text-align:right;">ĐIỂM SỐ</div>`;
 
     // List container
@@ -319,7 +319,7 @@ export class OverlayManager {
 
     const createPlayerRow = (rank, name, score, isOdd, avatarSrc) => {
       const row = document.createElement("div");
-      row.style.cssText = `width:100%; height:50px; min-height:50px; border-radius:12px; background:${isOdd ? '#FFF5D1' : '#FFFDF9'}; border:2px solid ${isOdd ? '#E7C66E' : '#F6EAD7'}; display:flex; align-items:center; padding:0 15px; box-sizing:border-box; color:#8B4A00; font-family:'Baloo 2', 'Be Vietnam Pro', sans-serif; font-size:20px; font-weight:700;`;
+      row.style.cssText = `width:100%; height:50px; min-height:50px; border-radius:12px; background:${isOdd ? '#FFF5D1' : '#FFFDF9'}; border:2px solid ${isOdd ? '#E7C66E' : '#F6EAD7'}; display:flex; align-items:center; padding:0 15px; box-sizing:border-box; color:#8B4A00; font-family:Be Vietnam Pro, sans-serif; font-size:20px; font-weight:700;`;
       
       let rankStr = rank;
       if (rank === 1) rankStr = '🥇';
@@ -349,7 +349,7 @@ export class OverlayManager {
 
     if (players.length === 0) {
       const emptyText = document.createElement('div');
-      emptyText.style.cssText = 'padding:40px 20px;text-align:center;color:#8B4A00;font-family:"Baloo 2","Be Vietnam Pro",sans-serif;font-size:18px;font-weight:700;';
+      emptyText.style.cssText = 'padding:40px 20px;text-align:center;color:#8B4A00;font-family:Be Vietnam Pro, sans-serif;font-size:18px;font-weight:700;';
       emptyText.innerText = 'Chưa có thành tích. Hãy chơi để thiết lập kỷ lục đầu tiên.';
       list.appendChild(emptyText);
     }
@@ -366,13 +366,13 @@ export class OverlayManager {
 
     // Personal Best Footer
     const footer = document.createElement("div");
-    footer.style.cssText = `width:96%; max-width:450px; height:60px; border-radius:12px; background:#FFFDF9; border:3px solid #6AB8FF; box-shadow: inset 0 2px 10px rgba(106,184,255,0.2); margin-top:15px; display:flex; align-items:center; padding:0 15px; box-sizing:border-box; color:#1E88E5; font-family:'Baloo 2', 'Be Vietnam Pro', sans-serif; font-size:20px; font-weight:800;`;
+    footer.style.cssText = `width:96%; max-width:450px; height:60px; border-radius:12px; background:#FFFDF9; border:3px solid #6AB8FF; box-shadow: inset 0 2px 10px rgba(106,184,255,0.2); margin-top:15px; display:flex; align-items:center; padding:0 15px; box-sizing:border-box; color:#1E88E5; font-family:Be Vietnam Pro, sans-serif; font-size:20px; font-weight:800;`;
     footer.innerHTML = `<div style="flex:1; font-size:24px;">${myRank > 0 ? myRank : '-'}</div>
                         <div style="flex:2; display:flex; align-items:center; gap:10px;">
                           <img src="${playerAvatar}" style="width:36px; height:36px; border-radius:50%; object-fit:cover; border:2px solid #1E88E5;">
                           ${playerName}
                         </div>
-                        <div style="flex:1; text-align:right; font-size:24px; font-family:'Nunito', 'Baloo 2', sans-serif;">${pbScore}</div>`;
+                        <div style="flex:1; text-align:right; font-size:24px; font-family:Be Vietnam Pro, sans-serif;">${pbScore}</div>`;
 
     // Close Button (X) at Top Right
     const closeBtn = this.createCloseButton(() => {

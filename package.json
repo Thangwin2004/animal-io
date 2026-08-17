@@ -7,6 +7,7 @@
     "dev": "vite",
     "prebuild": "node scripts/verify-wink-bridge.mjs",
     "build": "vite build",
+    "postbuild": "node scripts/prune-unused-public-assets.mjs",
     "preview": "vite preview",
     "test": "node --test test/*.test.js",
     "verify:wink-bridge": "node scripts/verify-wink-bridge.mjs"

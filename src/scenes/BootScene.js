@@ -9,7 +9,7 @@ export class BootScene {
     this.container.addChild(this.bg);
 
     const style = new TextStyle({
-      fontFamily: 'Arial',
+      fontFamily: 'Be Vietnam Pro',
       fontSize: 36,
       fill: '#ffffff',
       fontWeight: 'bold'

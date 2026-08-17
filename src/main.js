@@ -1,14 +1,20 @@
 import { GameApp } from './core/GameApp.js';
 import { winkGame } from "./integrations/wink/wink-adapter.js";
+import { waitForGameFonts } from "./utils/fontLoader.js";
 
 // Khởi tạo GameApp
 const game = new GameApp();
 
-// Force-load Google Fonts with Vietnamese text before PixiJS renders
-Promise.allSettled([
-  document.fonts.load("700 1em Nunito", "Bộ Lạc Đậu Phộng"),
-  document.fonts.load("700 1em 'Baloo 2'", "Bộ Lạc Đậu Phộng"),
-]).then(() => document.fonts.ready).then(() => {
+waitForGameFonts([
+  "400 1em 'Be Vietnam Pro'",
+  "500 1em 'Be Vietnam Pro'",
+  "600 1em 'Be Vietnam Pro'",
+  "700 1em 'Be Vietnam Pro'",
+  "800 1em 'Be Vietnam Pro'",
+  "900 1em 'Be Vietnam Pro'",
+  "700 1em 'Baloo 2'",
+  "800 1em 'Baloo 2'",
+]).then(() => {
   return game.init(document.getElementById('app'));
 }).then(() => {
   // ── Wink Bridge lifecycle binding ──

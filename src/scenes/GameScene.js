@@ -161,7 +161,7 @@ export class GameScene {
     this.lbTexts = [];
     for(let i = 0; i < 4; i++) {
         const textStyle = new TextStyle({ 
-          fontFamily: 'Arial', fontSize: 18, fill: '#FFFFFF', fontWeight: 'bold',
+          fontFamily: 'Be Vietnam Pro', fontSize: 18, fill: '#FFFFFF', fontWeight: 'bold',
           stroke: { color: '#000000', width: 3, join: 'round' }
         });
         const text = new Text({ text: '', style: textStyle });
@@ -390,7 +390,7 @@ export class GameScene {
   // === VFX: Text bay lên ===
   createFloatingText(x, y, text, color = '#FFD54F') {
     const style = new TextStyle({
-      fontFamily: 'Arial', fontSize: 48, fill: color, fontWeight: 'bold', stroke: { color: '#000000', width: 6 }
+      fontFamily: 'Be Vietnam Pro', fontSize: 48, fill: color, fontWeight: 'bold', stroke: { color: '#000000', width: 6 }
     });
     const t = new Text({ text, style });
     t.anchor.set(0.5);
@@ -433,7 +433,7 @@ export class GameScene {
   createPoofEffect(x, y, sizeScale = 1) {
     // 1. Chữ "POOF!"
     const style = new TextStyle({
-      fontFamily: "'Fredoka', 'Baloo 2', 'Be Vietnam Pro', sans-serif",
+      fontFamily: "'Be Vietnam Pro', sans-serif",
       fontSize: 50,
       fill: '#ffffff',
       fontWeight: '900',

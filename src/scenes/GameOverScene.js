@@ -24,14 +24,14 @@ export class GameOverScene {
 
     // Labels style (All Lilita One)
     const labelStyle = new TextStyle({
-      fontFamily: "'Nunito', 'Baloo 2', sans-serif", 
+      fontFamily: "'Be Vietnam Pro', sans-serif",
       fontSize: 26, 
       fill: '#ffffff',
       dropShadow: { color: 'rgba(0,0,0,0.25)', alpha: 1, distance: 2, blur: 0 }
     });
 
     const scoreNumStyle = new TextStyle({
-      fontFamily: "'Nunito', 'Baloo 2', sans-serif", 
+      fontFamily: "'Be Vietnam Pro', sans-serif",
       fontSize: 90, 
       fill: '#1E88E5',
       stroke: { color: '#ffffff', width: 10, join: 'round' },
@@ -44,7 +44,7 @@ export class GameOverScene {
     bestGrad.addColorStop(1, '#FF8F00');
 
     const bestNumStyle = new TextStyle({
-      fontFamily: "'Nunito', 'Baloo 2', sans-serif", 
+      fontFamily: "'Be Vietnam Pro', sans-serif",
       fontSize: 60, 
       fill: bestGrad,
       stroke: { color: '#ffffff', width: 8, join: 'round' },
@@ -73,7 +73,7 @@ export class GameOverScene {
     this.container.addChild(this.bestScoreText);
 
     const titleStyle = new TextStyle({
-      fontFamily: "'Nunito', 'Baloo 2', sans-serif", 
+      fontFamily: "'Be Vietnam Pro', sans-serif",
       fontSize: 70, 
       fill: '#FFB300', 
       stroke: { color: '#ffffff', width: 16, join: 'round' },

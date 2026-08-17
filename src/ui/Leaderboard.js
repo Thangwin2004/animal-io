@@ -7,7 +7,7 @@ export class Leaderboard extends Container {
     this.addChild(this.bg);
 
     const style = new TextStyle({
-      fontFamily: 'Arial', fontSize: 24, fill: '#ffcc00', fontWeight: 'bold'
+      fontFamily: 'Be Vietnam Pro', fontSize: 24, fill: '#ffcc00', fontWeight: 'bold'
     });
     this.title = new Text({ text: 'LEADERBOARD', style });
     this.title.anchor.set(0.5, 0);

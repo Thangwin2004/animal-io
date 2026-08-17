@@ -41,7 +41,7 @@ export class Enemy {
     this.container.addChild(this.bodyContainer);
 
     const style = new TextStyle({
-      fontFamily: 'Arial', fontSize: 28, fill: '#ffeb3b', fontWeight: 'bold',
+      fontFamily: 'Be Vietnam Pro', fontSize: 28, fill: '#ffeb3b', fontWeight: 'bold',
       stroke: { color: '#000000', width: 5 }
     });
     this.nameText = new Text({ text: '1', style });

@@ -40,7 +40,7 @@ export class Player {
     this.container.addChild(this.bodyContainer);
 
     const style = new TextStyle({
-      fontFamily: 'Arial', fontSize: 32, fill: '#00FF00', fontWeight: 'bold',
+      fontFamily: 'Be Vietnam Pro', fontSize: 32, fill: '#00FF00', fontWeight: 'bold',
       stroke: { color: '#000000', width: 5 }
     });
     this.nameText = new Text({ text: '1', style });

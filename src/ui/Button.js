@@ -16,7 +16,7 @@ export class Button extends Container {
     this.label = new Text({
       text: text,
       style: {
-        fontFamily: "'Nunito', 'Baloo 2', sans-serif",
+        fontFamily: "'Be Vietnam Pro', sans-serif",
         fontSize: Math.max(16, currentR * 0.9),
         fill: '#ffffff',
         fontWeight: "900",
@@ -145,7 +145,7 @@ export class IconBtn extends Container {
       this.label = new Text({
         text: labelText,
         style: {
-          fontFamily: "'Baloo 2', 'Fredoka', 'Be Vietnam Pro', sans-serif",
+          fontFamily: "'Be Vietnam Pro', sans-serif",
           fontSize: Math.max(14, currentR * 0.5),
           fill: '#ffffff',
           fontWeight: "900",

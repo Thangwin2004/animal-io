@@ -16,7 +16,7 @@ export class MenuScene {
     this.container.addChild(this.titleContainer);
 
     const commonStyle = {
-      fontFamily: "'Fredoka', 'Baloo 2', 'Be Vietnam Pro', sans-serif",
+      fontFamily: "'Baloo 2', 'Be Vietnam Pro', sans-serif",
       fontWeight: '900',
       stroke: { color: '#ffffff', width: 22, join: 'round' }, 
       dropShadow: { color: '#1565C0', alpha: 1, distance: 10, blur: 0 }
@@ -72,9 +72,21 @@ export class MenuScene {
     this.container.addChild(this.avatarSprite);
 
     // Nút Play
-    this.playBtn = new Button("CHƠI NGAY", () => {
+    this.playBtn = new Button("CHƠI NGAY", async () => {
+      if (this.startingGame) return;
+      this.startingGame = true;
+      this.playBtn.eventMode = 'none';
+      this.playBtn.alpha = 0.65;
       this.game.audioManager.playSFX('click');
-      this.game.switchScene('Game');
+      try {
+        await this.game.assetLoader.ensureGameplayAssets();
+        this.game.switchScene('Game');
+      } catch (error) {
+        console.error('Không thể tải asset trận đấu:', error);
+        this.startingGame = false;
+        this.playBtn.eventMode = 'static';
+        this.playBtn.alpha = 1;
+      }
     }, 32, 260); // 260 is fixed width so it doesn't break when font loads async
     this.container.addChild(this.playBtn);
 
