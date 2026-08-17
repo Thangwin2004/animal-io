@@ -166,4 +166,20 @@ export class AudioManager {
       this.ctx.resume();
     }
   }
+
+  async pauseForFocus() {
+    this.wasContextRunningBeforeFocus = this.ctx.state === 'running';
+    this.wasBgmPlayingBeforeFocus = Boolean(this.bgm && !this.bgm.paused);
+    if (this.wasBgmPlayingBeforeFocus) this.bgm.pause();
+    if (this.wasContextRunningBeforeFocus) await this.ctx.suspend();
+  }
+
+  async resumeFromFocus() {
+    if (this.wasContextRunningBeforeFocus) await this.ctx.resume();
+    this.wasContextRunningBeforeFocus = false;
+    if (this.wasBgmPlayingBeforeFocus && !this.isBgmMuted && !this.isPlatformMuted) {
+      await this.bgm.play().catch(() => {});
+    }
+    this.wasBgmPlayingBeforeFocus = false;
+  }
 }

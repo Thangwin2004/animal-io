@@ -1,6 +1,7 @@
 import { GameApp } from './core/GameApp.js';
 import { winkGame } from "./integrations/wink/wink-adapter.js";
 import { waitForGameFonts } from "./utils/fontLoader.js";
+import { installFocusPause } from "./utils/focusPause.js";
 
 // Khởi tạo GameApp
 const game = new GameApp();
@@ -17,10 +18,18 @@ waitForGameFonts([
 ]).then(() => {
   return game.init(document.getElementById('app'));
 }).then(() => {
+  const focusPause = installFocusPause({
+    isRunning: () => Boolean(game.app?.ticker.started),
+    pause: () => game.app?.ticker.stop(),
+    resume: () => game.app?.ticker.start(),
+    pauseAudio: () => game.audioManager?.pauseForFocus(),
+    resumeAudio: () => game.audioManager?.resumeFromFocus(),
+  });
+
   // ── Wink Bridge lifecycle binding ──
   winkGame.bindLifecycle({
-    onPause: () => { if (game.app && game.app.ticker) game.app.ticker.stop(); },
-    onResume: () => { if (game.app && game.app.ticker) game.app.ticker.start(); },
+    onPause: focusPause.pauseFromHost,
+    onResume: focusPause.resumeFromHost,
     onMute: () => { if (game.audioManager) game.audioManager.setMuted(true); },
     onUnmute: () => { if (game.audioManager) game.audioManager.setMuted(false); },
   });
