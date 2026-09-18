@@ -1,5 +1,6 @@
 import { Container, Graphics, Sprite, Text, TextStyle, FillGradient } from 'pixi.js';
 import { IconBtn } from '../ui/Button.js';
+import { i18n, t } from '../utils/I18nManager.js';
 import gsap from 'gsap';
 
 export class GameOverScene {
@@ -54,7 +55,7 @@ export class GameOverScene {
     // Ribbons for Labels
     this.scoreLabelBg = new Graphics();
     this.container.addChild(this.scoreLabelBg);
-    this.scoreLabel = new Text({ text: 'ĐIỂM SỐ', style: labelStyle });
+    this.scoreLabel = new Text({ text: t('gameover.score'), style: labelStyle });
     this.scoreLabel.anchor.set(0.5);
     this.container.addChild(this.scoreLabel);
 
@@ -64,7 +65,7 @@ export class GameOverScene {
     
     this.bestLabelBg = new Graphics();
     this.container.addChild(this.bestLabelBg);
-    this.bestLabel = new Text({ text: 'KỶ LỤC', style: labelStyle });
+    this.bestLabel = new Text({ text: t('gameover.best'), style: labelStyle });
     this.bestLabel.anchor.set(0.5);
     this.container.addChild(this.bestLabel);
 
@@ -82,7 +83,7 @@ export class GameOverScene {
       align: 'center'
     });
     
-    this.title = new Text({ text: 'ÔI TIẾC\nQUÁ!', style: titleStyle });
+    this.title = new Text({ text: t('gameover.title'), style: titleStyle });
     this.title.anchor.set(0.5);
     this.container.addChild(this.title);
 
@@ -111,10 +112,12 @@ export class GameOverScene {
     }
 
     if (data?.isVictory) {
-      this.title.text = 'VÔ ĐỊCH!';
+      this.title.text = i18n.currentLanguage === 'vi' ? 'VÔ ĐỊCH!' : 'VICTORY!';
     } else {
-      this.title.text = 'ÔI TIẾC\nQUÁ!';
+      this.title.text = t('gameover.title');
     }
+    this.scoreLabel.text = t('gameover.score');
+    this.bestLabel.text = t('gameover.best');
 
     this.scoreText.text = `0`;
     this.bestScoreText.text = `${this.game.bestScore}`;

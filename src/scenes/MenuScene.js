@@ -1,5 +1,6 @@
 import { Container, Graphics, Sprite, Text, TextStyle, FillGradient } from 'pixi.js';
 import { IconBtn, Button } from '../ui/Button.js';
+import { t } from '../utils/I18nManager.js';
 
 export class MenuScene {
   constructor(game) {
@@ -72,7 +73,7 @@ export class MenuScene {
     this.container.addChild(this.avatarSprite);
 
     // Nút Play
-    this.playBtn = new Button("CHƠI NGAY", async () => {
+    this.playBtn = new Button(t("menu.play"), async () => {
       if (this.startingGame) return;
       this.startingGame = true;
       this.playBtn.eventMode = 'none';
@@ -106,6 +107,7 @@ export class MenuScene {
   }
 
   onEnter() {
+    this.playBtn.setText(t("menu.play"));
     // Phát nhạc nền cho màn hình chính
     this.game.audioManager.playBGM('/assest/music/BGMM_Login.mp3', 0.05);
 

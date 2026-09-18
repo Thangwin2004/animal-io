@@ -1,7 +1,15 @@
 import gsap from 'gsap';
 import { winkGame } from '../integrations/wink/wink-adapter.js';
+import { i18n, t } from '../utils/I18nManager.js';
 
 function getEffectiveUser() {
+  if (winkGame && winkGame.personalBest?.displayName) {
+    return {
+      name: winkGame.personalBest.displayName,
+      avatar: "/assest/image/imagenobackgrd/007_avatar_tiguawhite.png",
+    };
+  }
+
   try {
     const savedUser = localStorage.getItem("google_user");
     if (savedUser) {
@@ -67,12 +75,12 @@ export class OverlayManager {
     heart.style.cssText = "font-size:100px; animation: heartbeat 1s infinite; filter:drop-shadow(0 5px 10px rgba(0,0,0,0.5)); margin-top:10px;";
 
     const title = document.createElement("div");
-    title.innerText = "BẠN CÓ MUỐN HỒI SINH KHÔNG?";
+    title.innerText = t("revive.title");
     title.style.cssText = "color:#FF9800; text-shadow: -2px -2px 0 #8B4A00, 2px -2px 0 #8B4A00, -2px 2px 0 #8B4A00, 2px 2px 0 #8B4A00; font-family:Be Vietnam Pro, sans-serif; font-size:32px; font-weight:900; margin-top:20px; text-align:center; padding: 0 20px; line-height: 1.2; text-shadow: 0 4px 0px rgba(0,0,0,0.2);";
 
     const yesBtn = document.createElement("button");
     yesBtn.style.cssText = "position:relative; margin-top:30px; background:linear-gradient(to bottom, #FFD54F, #FB8C00); border:4px solid #fff; border-radius:30px; padding:12px 50px; color:#ffffff; text-shadow: -2px -2px 0 #8B4A00, 2px -2px 0 #8B4A00, -2px 2px 0 #8B4A00, 2px 2px 0 #8B4A00; font-family:Be Vietnam Pro, sans-serif; font-size:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow: 0 8px 0 #E65100, 0 12px 20px rgba(0,0,0,0.3); transition: transform 0.1s;";
-    yesBtn.innerHTML = `<svg viewBox="0 0 24 24" width="28" height="28" style="z-index:2; position:relative;"><path fill="#ffffff" stroke="#8B4A00" stroke-width="1.5" d="M8,5.14V19.14L19,12.14L8,5.14Z" /></svg> <span style="z-index:2; position:relative;">CÓ</span>`;
+    yesBtn.innerHTML = `<svg viewBox="0 0 24 24" width="28" height="28" style="z-index:2; position:relative;"><path fill="#ffffff" stroke="#8B4A00" stroke-width="1.5" d="M8,5.14V19.14L19,12.14L8,5.14Z" /></svg> <span style="z-index:2; position:relative;">${t("revive.yes")}</span>`;
     
     // Highlight for Candy Crush button
     const sheen = document.createElement("div");
@@ -89,7 +97,7 @@ export class OverlayManager {
     };
 
     const noLink = document.createElement("div");
-    noLink.innerText = "Không, cảm ơn";
+    noLink.innerText = t("revive.skip");
     noLink.style.cssText = "margin-top:25px; color:#8B4A00; opacity: 0.8; font-family:Be Vietnam Pro, sans-serif; font-size:18px; text-decoration:underline; cursor:pointer; font-weight:700;";
     noLink.onclick = () => {
       overlay.remove();
@@ -134,13 +142,13 @@ export class OverlayManager {
     const overlay = this.createBaseOverlay('settings-overlay');
 
     const cardW = Math.min(420, window.innerWidth * 0.92);
-    const cardH = isIngame ? 420 : 300; // Increased spacing
+    const cardH = isIngame ? 490 : 380; // Increased spacing for language row
     
     const card = document.createElement("div");
     card.style.cssText = `position:relative; width:${cardW}px; height:${cardH}px; flex-shrink:0; border-radius:30px; background:#F6EAD7; box-shadow:0 15px 30px rgba(0,0,0,0.4), inset 0 -8px 0 rgba(139,74,0,0.15); display:flex; flex-direction:column; align-items:center; border:5px solid #C89B54;`;
 
     const cardInner = document.createElement("div");
-    cardInner.style.cssText = `position:absolute; top:0; left:0; width:100%; height:calc(100% - 12px); border-radius:24px; background:linear-gradient(to bottom, #FFFDF9, #FFF9EE); display:flex; flex-direction:column; align-items:center; padding-top:60px; box-sizing:border-box; gap:25px;`;
+    cardInner.style.cssText = `position:absolute; top:0; left:0; width:100%; height:calc(100% - 12px); border-radius:24px; background:linear-gradient(to bottom, #FFFDF9, #FFF9EE); display:flex; flex-direction:column; align-items:center; padding-top:60px; box-sizing:border-box; gap:20px;`;
 
     // Title Ribbon <====>
     const ribbon = document.createElement("div");
@@ -156,15 +164,15 @@ export class OverlayManager {
       white-space: nowrap;
       z-index:10;
     `;
-    ribbon.innerText = "CÀI ĐẶT";
+    ribbon.innerText = t("settings.title");
 
     // Rows
     const createRow = (label, isMuted, onToggle) => {
       const row = document.createElement("div");
-      row.style.cssText = `width:90%; max-width:360px; height:75px; border-radius:20px; background:#FFF5D1; border:3px solid #E7C66E; display:flex; justify-content:space-between; align-items:center; padding:0 25px; box-sizing:border-box; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);`;
+      row.style.cssText = `width:90%; max-width:360px; height:70px; border-radius:20px; background:#FFF5D1; border:3px solid #E7C66E; display:flex; justify-content:space-between; align-items:center; padding:0 25px; box-sizing:border-box; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);`;
       
       const text = document.createElement("span");
-      text.style.cssText = `font-family:Be Vietnam Pro, sans-serif; font-size:24px; color:#8B4A00; letter-spacing:1px; text-shadow: -1px -1px 0 #8B4A00, 1px -1px 0 #8B4A00, -1px 1px 0 #8B4A00, 1px 1px 0 #8B4A00; white-space:nowrap;`;
+      text.style.cssText = `font-family:Be Vietnam Pro, sans-serif; font-size:22px; color:#8B4A00; letter-spacing:1px; text-shadow: -1px -1px 0 #8B4A00, 1px -1px 0 #8B4A00, -1px 1px 0 #8B4A00, 1px 1px 0 #8B4A00; white-space:nowrap;`;
       text.innerText = label;
 
       const toggle = document.createElement("div");
@@ -199,11 +207,38 @@ export class OverlayManager {
       return row;
     };
 
-    const bgmRow = createRow("ÂM NHẠC", this.game.audioManager.isBgmMuted, () => this.game.audioManager.toggleBGM());
-    const sfxRow = createRow("HIỆU ỨNG", this.game.audioManager.isSfxMuted, () => this.game.audioManager.toggleSFX());
+    const bgmRow = createRow(t("settings.music"), this.game.audioManager.isBgmMuted, () => this.game.audioManager.toggleBGM());
+    const sfxRow = createRow(t("settings.sfx"), this.game.audioManager.isSfxMuted, () => this.game.audioManager.toggleSFX());
+
+    // Language Row
+    const langRow = document.createElement("div");
+    langRow.style.cssText = `width:90%; max-width:360px; height:70px; border-radius:20px; background:#FFF5D1; border:3px solid #E7C66E; display:flex; justify-content:space-between; align-items:center; padding:0 25px; box-sizing:border-box; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);`;
+
+    const langText = document.createElement("span");
+    langText.style.cssText = `font-family:Be Vietnam Pro, sans-serif; font-size:22px; color:#8B4A00; letter-spacing:1px; text-shadow: -1px -1px 0 #8B4A00, 1px -1px 0 #8B4A00, -1px 1px 0 #8B4A00, 1px 1px 0 #8B4A00; white-space:nowrap;`;
+    langText.innerText = t("settings.language");
+
+    const langSelect = document.createElement("select");
+    langSelect.style.cssText = `min-width:120px; height:46px; border-radius:23px; background:#79D64C; border:3px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color:#fff; font-family:Be Vietnam Pro, sans-serif; font-size:16px; font-weight:800; padding: 0 10px; outline:none; cursor:pointer; text-align:center;`;
+    langSelect.innerHTML = `
+      <option value="en" style="color:#333; background:#fff;">English</option>
+      <option value="vi" style="color:#333; background:#fff;">Tiếng Việt</option>
+    `;
+    langSelect.value = i18n.currentLanguage;
+
+    langSelect.onchange = () => {
+      this.game.audioManager.playSFX('click');
+      i18n.setLanguage(langSelect.value);
+      overlay.remove();
+      this.showSettings(onResume, isIngame);
+    };
+
+    langRow.appendChild(langText);
+    langRow.appendChild(langSelect);
 
     cardInner.appendChild(bgmRow);
     cardInner.appendChild(sfxRow);
+    cardInner.appendChild(langRow);
 
     if (isIngame) {
       const btnRow = document.createElement("div");
@@ -306,12 +341,13 @@ export class OverlayManager {
       white-space: nowrap;
       z-index:10;
     `;
-    ribbon.innerText = "BẢNG VÀNG";
+    ribbon.innerText = t("leaderboard.title");
 
     // Headers
+    const isVi = i18n.currentLanguage === 'vi';
     const headers = document.createElement("div");
     headers.style.cssText = `width:100%; max-width:450px; display:flex; color:#8B4A00; font-family:Be Vietnam Pro, sans-serif; font-size:20px; margin-top:10px; margin-bottom:10px; padding:0 15px; box-sizing:border-box;`;
-    headers.innerHTML = `<div style="flex:1;">HẠNG</div><div style="flex:2;">THÀNH VIÊN</div><div style="flex:1; text-align:right;">ĐIỂM SỐ</div>`;
+    headers.innerHTML = `<div style="flex:1;">${isVi ? 'HẠNG' : 'RANK'}</div><div style="flex:2;">${isVi ? 'THÀNH VIÊN' : 'PLAYER'}</div><div style="flex:1; text-align:right;">${isVi ? 'ĐIỂM SỐ' : 'SCORE'}</div>`;
 
     // List container
     const list = document.createElement("div");
@@ -335,44 +371,82 @@ export class OverlayManager {
       return row;
     };
 
+    const renderList = (players) => {
+      list.innerHTML = "";
+      if (!players || players.length === 0) {
+        const emptyText = document.createElement('div');
+        emptyText.style.cssText = 'padding:40px 20px;text-align:center;color:#8B4A00;font-family:Be Vietnam Pro, sans-serif;font-size:18px;font-weight:700;';
+        emptyText.innerText = t("leaderboard.empty");
+        list.appendChild(emptyText);
+        return;
+      }
+      players.slice(0, 10).forEach((p, index) => {
+        const isOdd = (index + 1) % 2 !== 0;
+        const row = createPlayerRow(p.rank || index + 1, p.name, p.score, isOdd, p.avatar);
+        if (p.isMe) {
+          row.style.background = '#E3F2FD';
+          row.style.borderColor = '#6AB8FF';
+        }
+        list.appendChild(row);
+      });
+    };
+
     const pbScore = parseInt(localStorage.getItem('animal_io_best_score')) || 0;
     const effUser = getEffectiveUser();
-    const playerName = effUser ? effUser.name : 'Bạn (Khách)';
+    const fallbackPlayerName = effUser ? effUser.name : (winkGame?.isAuthenticated ? t("leaderboard.member") : t("leaderboard.guest"));
     const playerAvatar = effUser?.avatar || '/assest/image/imagenobackgrd/007_avatar_tiguawhite.png';
 
-    const players = pbScore > 0
-      ? [{ name: playerName, score: pbScore, isMe: true, avatar: playerAvatar }]
+    const defaultPlayers = pbScore > 0
+      ? [{ name: fallbackPlayerName, score: pbScore, isMe: true, avatar: playerAvatar, rank: 1 }]
       : [];
-    
-    players.sort((a, b) => b.score - a.score);
-    const myRank = players.findIndex(p => p.isMe) + 1;
-
-    if (players.length === 0) {
-      const emptyText = document.createElement('div');
-      emptyText.style.cssText = 'padding:40px 20px;text-align:center;color:#8B4A00;font-family:Be Vietnam Pro, sans-serif;font-size:18px;font-weight:700;';
-      emptyText.innerText = 'Chưa có thành tích. Hãy chơi để thiết lập kỷ lục đầu tiên.';
-      list.appendChild(emptyText);
-    }
-    
-    players.slice(0, 10).forEach((p, index) => {
-      const isOdd = (index + 1) % 2 !== 0;
-      const row = createPlayerRow(index + 1, p.name, p.score, isOdd, p.avatar);
-      if (p.isMe) {
-        row.style.background = '#E3F2FD';
-        row.style.borderColor = '#6AB8FF';
-      }
-      list.appendChild(row);
-    });
 
     // Personal Best Footer
     const footer = document.createElement("div");
     footer.style.cssText = `width:96%; max-width:450px; height:60px; border-radius:12px; background:#FFFDF9; border:3px solid #6AB8FF; box-shadow: inset 0 2px 10px rgba(106,184,255,0.2); margin-top:15px; display:flex; align-items:center; padding:0 15px; box-sizing:border-box; color:#1E88E5; font-family:Be Vietnam Pro, sans-serif; font-size:20px; font-weight:800;`;
-    footer.innerHTML = `<div style="flex:1; font-size:24px;">${myRank > 0 ? myRank : '-'}</div>
-                        <div style="flex:2; display:flex; align-items:center; gap:10px;">
-                          <img src="${playerAvatar}" style="width:36px; height:36px; border-radius:50%; object-fit:cover; border:2px solid #1E88E5;">
-                          ${playerName}
-                        </div>
-                        <div style="flex:1; text-align:right; font-size:24px; font-family:Be Vietnam Pro, sans-serif;">${pbScore}</div>`;
+
+    const updateFooter = (pb) => {
+      const activeUser = getEffectiveUser();
+      const defaultName = winkGame?.isAuthenticated ? t("leaderboard.member") : t("leaderboard.guest");
+      const pName = pb?.displayName || (activeUser ? activeUser.name : defaultName);
+      const pAvatar = activeUser?.avatar || '/assest/image/imagenobackgrd/007_avatar_tiguawhite.png';
+      const pScore = pb?.score !== undefined && pb?.score !== null ? pb.score : pbScore;
+      const rankNum = pb?.rank || (pScore > 0 ? 1 : 0);
+      let rankStr = rankNum > 0 ? (rankNum === 1 ? '🥇' : rankNum === 2 ? '🥈' : rankNum === 3 ? '🥉' : `${rankNum}`) : '-';
+
+      footer.innerHTML = `<div style="flex:1; font-size:24px;">${rankStr}</div>
+                          <div style="flex:2; display:flex; align-items:center; gap:10px;">
+                            <img src="${pAvatar}" style="width:36px; height:36px; border-radius:50%; object-fit:cover; border:2px solid #1E88E5;">
+                            <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pName}</span>
+                          </div>
+                          <div style="flex:1; text-align:right; font-size:24px; font-family:Be Vietnam Pro, sans-serif;">${pScore}</div>`;
+    };
+
+    // Initial render
+    renderList(defaultPlayers);
+    updateFooter(winkGame?.personalBest);
+
+    // Fetch from Wink API
+    if (winkGame) {
+      Promise.all([
+        winkGame.refreshLeaderboard({ limit: 10 }),
+        winkGame.getPersonalBest()
+      ]).then(([lbRes, pbRes]) => {
+        if (lbRes && Array.isArray(lbRes.entries) && lbRes.entries.length > 0) {
+          const apiPlayers = lbRes.entries.map((item, idx) => ({
+            name: item.displayName || item.name || t("leaderboard.memberRank", { rank: item.rank || idx + 1 }),
+            score: item.score || 0,
+            avatar: item.avatarUrl || '/assest/image/imagenobackgrd/007_avatar_tiguawhite.png',
+            rank: item.rank || idx + 1,
+            isMe: Boolean(item.userId && pbRes?.me?.userId && item.userId === pbRes.me.userId),
+          }));
+          renderList(apiPlayers);
+        }
+        const activePb = pbRes?.me || lbRes?.me || winkGame.personalBest;
+        updateFooter(activePb);
+      }).catch(() => {
+        // Fallback already rendered
+      });
+    }
 
     // Close Button (X) at Top Right
     const closeBtn = this.createCloseButton(() => {

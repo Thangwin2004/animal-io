@@ -1,3 +1,4 @@
+import { i18n } from "./utils/I18nManager.js";
 import { GameApp } from './core/GameApp.js';
 import { winkGame } from "./integrations/wink/wink-adapter.js";
 import { waitForGameFonts } from "./utils/fontLoader.js";
@@ -29,7 +30,7 @@ waitForGameFonts([
     resumeAudio: () => game.audioManager?.resumeFromFocus(),
   });
 
-  // ── Wink Bridge lifecycle binding ──
+  // ── Wink SDK lifecycle binding ──
   winkGame.bindLifecycle({
     onPause: focusPause.pauseFromHost,
     onResume: focusPause.resumeFromHost,
@@ -37,5 +38,7 @@ waitForGameFonts([
     onUnmute: () => { if (game.audioManager) game.audioManager.setMuted(false); },
   });
 
-  winkGame.observe(() => {});
+  winkGame.observe(() => {
+    document.documentElement.lang = i18n.currentLanguage;
+  });
 }).catch(console.error);

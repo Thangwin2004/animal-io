@@ -5,12 +5,12 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/verify-wink-bridge.mjs",
+    "prebuild": "node scripts/verify-wink-sdk.mjs",
     "build": "vite build",
     "postbuild": "node scripts/prune-unused-public-assets.mjs",
     "preview": "vite preview",
     "test": "node --test test/*.test.js",
-    "verify:wink-bridge": "node scripts/verify-wink-bridge.mjs"
+    "verify:wink-sdk": "node scripts/verify-wink-sdk.mjs"
   },
   "keywords": [],
   "author": "",

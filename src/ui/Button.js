@@ -72,6 +72,10 @@ export class Button extends Container {
       this.content.y = 0;
     });
   }
+
+  setText(text) {
+    this.label.text = text;
+  }
 }
 
 const ICONS = {

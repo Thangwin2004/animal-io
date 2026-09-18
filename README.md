@@ -7,7 +7,7 @@ Production game origin là `https://bo-lac-thu-nhun.papastudio.net`.
 
 ```bash
 corepack pnpm install --frozen-lockfile
-corepack pnpm run verify:wink-bridge
+corepack pnpm run verify:wink-sdk
 corepack pnpm run build
 ```
 
