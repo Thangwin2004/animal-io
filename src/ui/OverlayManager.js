@@ -140,6 +140,12 @@ export class OverlayManager {
 
   showSettings(onResume, isIngame = false) {
     const overlay = this.createBaseOverlay('settings-overlay');
+    const unsub = i18n.subscribe(() => {
+      if (document.body.contains(overlay)) {
+        overlay.remove();
+        this.showSettings(onResume, isIngame);
+      }
+    });
 
     const cardW = Math.min(420, window.innerWidth * 0.92);
     const cardH = isIngame ? 490 : 380; // Increased spacing for language row
@@ -228,9 +234,7 @@ export class OverlayManager {
 
     langSelect.onchange = () => {
       this.game.audioManager.playSFX('click');
-      i18n.setLanguage(langSelect.value);
-      overlay.remove();
-      this.showSettings(onResume, isIngame);
+      winkGame.setLocale(langSelect.value);
     };
 
     langRow.appendChild(langText);
@@ -307,6 +311,7 @@ export class OverlayManager {
 
     const originalRemove = overlay.remove.bind(overlay);
     overlay.remove = () => {
+      unsub();
       window.removeEventListener("resize", handleResize);
       originalRemove();
     };

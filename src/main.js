@@ -36,6 +36,7 @@ waitForGameFonts([
     onResume: focusPause.resumeFromHost,
     onMute: () => { if (game.audioManager) game.audioManager.setMuted(true); },
     onUnmute: () => { if (game.audioManager) game.audioManager.setMuted(false); },
+    onLocale: (locale) => i18n.setLanguage(locale, { persist: false }),
   });
 
   winkGame.observe(() => {

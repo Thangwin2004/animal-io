@@ -86,11 +86,9 @@ export class I18nManager {
   setLanguage(language, { persist = true } = {}) {
     const normalized = normalizeLanguage(language) || "en";
     if (persist) {
-      this.hasLocalOverride = true;
       try {
         if (typeof window !== "undefined" && window.localStorage) {
           window.localStorage.setItem(STORAGE_KEY, normalized);
-          this.hasLocalOverride = true;
         }
       } catch {
         // Fallback for isolated session
@@ -109,9 +107,10 @@ export class I18nManager {
     return true;
   }
 
-  syncFromWink() {
-    if (this.hasLocalOverride) return false;
-    // Default is EN; player's choice is saved if changed in-game.
+  syncFromWink(state) {
+    if (state?.locale) {
+      return this.setLanguage(state.locale, { persist: false });
+    }
     return false;
   }
 
